@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">My Cource Work</string>
+    <string name="action_settings">About programm</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Enable Bluetooth</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="suggestionEnableBluetooth">Please, enable bluetooth to get app working!</string>
+    <string name="suggestionNoBtAdapter">Sorry, no bluetooth adapter on your device</string>
+    <string name="fab_content_desc">Add Device</string>
+    <string name="error">App error!</string>
+    <string name="openMainActivity">Go back</string>
+    <string name="btnEnBt">Enable bluetooth</string>
+    <string name="refresh_application">Refresh</string>
+    <string name="paired_devices">List of paired devices</string>
+    <string name="other_discoverable_devices">New devices can be added in the settings</string>
+    <string name="no_devices_added">No devices added</string>
+    <string name="hse_logo">MIEM</string>
+</resources>
