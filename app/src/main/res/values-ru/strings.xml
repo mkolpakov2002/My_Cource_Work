@@ -16,7 +16,7 @@
     <string name="btnEnBt">Включить bluetooth</string>
     <string name="refresh_application">Обновить</string>
     <string name="paired_devices">Список связанных устройств</string>
-    <string name="other_discoverable_devices">Новые устройства могут быть добавлены в настройках</string>
+    <string name="other_discoverable_devices">Новые устройства могут быть добавлены по кнопке ниже</string>
     <string name="no_devices_added">Нет добавленных устройств</string>
     <string name="hse_logo">МИЭМ</string>
 </resources>

@@ -33,18 +33,18 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    public ExtendedFloatingActionButton fab_en_bt;
-    public ExtendedFloatingActionButton fab_add_device;
+    public ExtendedFloatingActionButton fabToEnBt;
+    public ExtendedFloatingActionButton fabToAddDevice;
     public ListView pairedList;
     //инициализация swipe refresh
-    public SwipeRefreshLayout mSwipeRefreshLayout;
+    public SwipeRefreshLayout swipeToRefreshLayout;
     public BluetoothAdapter btAdapter;
-    public boolean btIsEnabledFlag = false;
-    public boolean stateOfFabEnBt = false;
-    public boolean stateOfFabAddDevice = false;
+    public boolean stateOfBt = false;
+    public boolean stateOfFabToEnBt = false;
+    public boolean stateOfFabToAddDevice = false;
     private static final String TAG = "MainActivity";
-    public TextView pairedDevicesTitle;
-    public TextView otherDevices;
+    public TextView pairedDevicesTitleTextView;
+    public TextView otherDevicesTextView;
     // SPP UUID сервиса
     public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     BluetoothSocket clientSocket = null;
@@ -58,81 +58,31 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.fab_add_device = findViewById(R.id.floating_action_button_Add_Device);
-        this.fab_en_bt = findViewById(R.id.floating_action_button_En_Bt);
-        this.pairedList = findViewById(R.id.pairedList);
-        pairedDevicesTitle = findViewById(R.id.paired_devices_title);
-        otherDevices = findViewById(R.id.other_discoverable_devices_title);
+        this.fabToAddDevice = findViewById(R.id.floating_action_button_Add_Device);
+        this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+        this.pairedList = findViewById(R.id.paired_list);
+        pairedDevicesTitleTextView = findViewById(R.id.paired_devices_title);
+        otherDevicesTextView = findViewById(R.id.other_discoverable_devices_title);
+        swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
+        fabToEnBt.hide();
+        fabToAddDevice.hide();
 
         pairedList.setOnItemClickListener((parent, view, position, id) -> {
-
-            Object listItem = pairedList.getItemAtPosition(position);
-            String selectedDevice = listItem.toString();
-            //Получили информацию с выбранной позиции List View в String виде
-            showToast(listItem.toString());
-            int i = selectedDevice.indexOf(':');
-            i = i - 2;
-            //В текущем пункте List View находим первый символ ":", всё после него, а также два символа до него - адрес выбранного устройства
-            selectedDevice = selectedDevice.substring(i);
-            //Сокет, с помощью которого мы будем отправлять данные на выбранное устройство
-            //соединение с устройством с выбранным адресом Bluetooth модуля.
-            BluetoothDevice device = btAdapter.getRemoteDevice(selectedDevice);
-
-            try {
-                clientSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-            } catch (IOException e) {
-                Log.d("BLUETOOTH", e.getMessage());
-            }
-            btAdapter.cancelDiscovery();
-            try {
-
-                clientSocket.connect();
-                Log.d(TAG, "...Соединение установлено и готово к передачи данных...");
-            } catch (IOException e) {
-                try {
-                    clientSocket.close();
-                } catch (IOException e2) {
-                    Log.d("BLUETOOTH", e2.getMessage());
-                }
-            }
-            try {
-                outStream = clientSocket.getOutputStream();
-            } catch (IOException e) {
-                Log.d("BLUETOOTH", e.getMessage());
-            }
-            try{
-                int sending_data;
-                //изменяем данные для посылки
-                sending_data = 60;
-                //byte[] msgBuffer = sending_data.getBytes();
-                //Пишем данные в выходной поток
-                if (outStream != null) {
-                    outStream.write(sending_data);
-                    //Выводим сообщение об успешном подключении
-                    Toast.makeText(getApplicationContext(), "CONNECTED", Toast.LENGTH_LONG).show();
-                }
-            } catch (IOException | SecurityException | IllegalArgumentException e) {
-                Log.d("BLUETOOTH", e.getMessage());
-            }
+            int positionOfSelectedDevice = position;
+            startSendingData(positionOfSelectedDevice);
         });
-
-        fab_add_device.setOnClickListener(view -> {
+        fabToAddDevice.setOnClickListener(view -> {
             Intent intent_add_device = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
             startActivity(intent_add_device);
         });
-        fab_en_bt.setOnClickListener(view -> {
+        fabToEnBt.setOnClickListener(view -> {
             Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         });
 
-        mSwipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this::refreshApplication);
-        fab_en_bt.hide();
-        fab_add_device.hide();
-
-
+        swipeToRefreshLayout.setOnRefreshListener(this::refreshApplication);
     }
 
     @Override
@@ -160,14 +110,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        enableBt();
+        checkForBtAdapter();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        enableBt();
-
+        checkForBtAdapter();
     }
 
     //возвращает true, если bluetooth включён
@@ -175,24 +124,97 @@ public class MainActivity extends AppCompatActivity {
         return btAdapter.isEnabled();
     }
 
+    public void startSendingData(int positionOfSelectedDevice){
+        Object listItem = pairedList.getItemAtPosition(positionOfSelectedDevice);
+        String selectedDevice = listItem.toString();
+        //Получили информацию с выбранной позиции List View в String виде
+        showToast(listItem.toString());
+        int i = selectedDevice.indexOf(':');
+        i = i - 2;
+        //В текущем пункте List View находим первый символ ":", всё после него, а также два символа до него - адрес выбранного устройства
+        selectedDevice = selectedDevice.substring(i);
+        //Сокет, с помощью которого мы будем отправлять данные на выбранное устройство
+        //соединение с устройством с выбранным адресом Bluetooth модуля.
+        BluetoothDevice device = btAdapter.getRemoteDevice(selectedDevice);
+
+        try {
+            clientSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+        } catch (IOException e) {
+            Log.d("BLUETOOTH", e.getMessage());
+        }
+        btAdapter.cancelDiscovery();
+        try {
+
+            clientSocket.connect();
+            Log.d(TAG, "...Соединение установлено и готово к передачи данных...");
+        } catch (IOException e) {
+            try {
+                clientSocket.close();
+            } catch (IOException e2) {
+                Log.d("BLUETOOTH", e2.getMessage());
+            }
+        }
+        try {
+            outStream = clientSocket.getOutputStream();
+        } catch (IOException e) {
+            Log.d("BLUETOOTH", e.getMessage());
+        }
+        try{
+            int sending_data;
+            //изменяем данные для посылки
+            sending_data = 60;
+            //byte[] msgBuffer = sending_data.getBytes();
+            //Пишем данные в выходной поток
+            if (outStream != null) {
+                outStream.write(sending_data);
+                //Выводим сообщение об успешном подключении
+                Toast.makeText(getApplicationContext(), "CONNECTED", Toast.LENGTH_LONG).show();
+            }
+        } catch (IOException | SecurityException | IllegalArgumentException e) {
+            Log.d("BLUETOOTH", e.getMessage());
+        }
+    }
+
     public void refreshApplication(){
-        Intent intent_reload_activity = getIntent();
-        overridePendingTransition(0, 0);
-        intent_reload_activity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(intent_reload_activity);
-        mSwipeRefreshLayout.setRefreshing(false);
+        stateOfBt = btIsEnabledFlagVoid();
+        if (stateOfBt) {
+            // Bluetooth включён. Предложим пользователю добавить устройства и начать передачу данных.
+            if (stateOfFabToEnBt) {
+                fabToEnBt.hide();
+                stateOfFabToEnBt = false;
+            }
+            if(!stateOfFabToAddDevice){
+                fabToAddDevice.show();
+                stateOfFabToAddDevice = true;
+                pairedDevicesTitleTextView.setVisibility(View.VISIBLE);
+                otherDevicesTextView.setVisibility(View.VISIBLE);
+                searchForDevice();
+            }
+        } else {
+            if(stateOfFabToAddDevice){
+                fabToAddDevice.hide();
+                stateOfFabToAddDevice = false;
+                pairedDevicesTitleTextView.setVisibility(View.GONE);
+                otherDevicesTextView.setVisibility(View.GONE);
+                pairedList.setAdapter(null);
+            }
+            // Bluetooth выключен. Предложим пользователю включить его.
+            if (!stateOfFabToEnBt) {
+                fabToEnBt.show();
+                stateOfFabToEnBt = true;
+            }
+        }
+        swipeToRefreshLayout.setRefreshing(false);
     }
 
 
     public void searchForDevice(){
-        ListView pairedList = findViewById(R.id.pairedList);
+        ListView pairedList = findViewById(R.id.paired_list);
         Set<BluetoothDevice> pairedDevices= btAdapter.getBondedDevices();
-// создаем адаптер
+        // создаем адаптер
         // Если список спаренных устройств не пуст
         if(pairedDevices.size()>0){
-            pairedDevicesTitle.setText(R.string.paired_devices);
+            pairedDevicesTitleTextView.setText(R.string.paired_devices);
             String deviceHardwareAddress;
             ArrayList<String> devicesList = new ArrayList<String>();
             // проходимся в цикле по этому списку
@@ -207,42 +229,14 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             //no_devices_added
-            pairedDevicesTitle.setText(R.string.no_devices_added);
+            pairedDevicesTitleTextView.setText(R.string.no_devices_added);
             pairedList.setAdapter(null);
         }
     }
 
-    //включаем bluetooth
-    public void enableBt() {
-
+    public void checkForBtAdapter() {
         if (btAdapter != null) {
-            btIsEnabledFlag = btIsEnabledFlagVoid();
-            if (btIsEnabledFlag) {
-                if(!stateOfFabAddDevice){
-                    fab_add_device.show();
-                    stateOfFabAddDevice = true;
-                    pairedDevicesTitle.setVisibility(View.VISIBLE);
-                    otherDevices.setVisibility(View.VISIBLE);
-                }
-                if (stateOfFabEnBt) {
-                    fab_en_bt.hide();
-                    stateOfFabEnBt = false;
-                }
-                searchForDevice();
-            } else {
-                if(stateOfFabAddDevice){
-                    fab_add_device.hide();
-                    stateOfFabAddDevice = false;
-                    pairedDevicesTitle.setVisibility(View.GONE);
-                    otherDevices.setVisibility(View.GONE);
-                    pairedList.setAdapter(null);
-                }
-                // Bluetooth выключен. Предложим пользователю включить его.
-                if (!stateOfFabEnBt) {
-                    fab_en_bt.show();
-                    stateOfFabEnBt = true;
-                }
-            }
+            refreshApplication();
         } else {
             System.out.println("There is no bluetooth adapter on device!");
             //suggestionNoBtAdapter
@@ -255,7 +249,6 @@ public class MainActivity extends AppCompatActivity {
                         dialog1.dismiss();
                         MainActivity.this.finish();
                     });
-
         }
     }
 
@@ -263,5 +256,4 @@ public class MainActivity extends AppCompatActivity {
         Toast outputInfoToast = Toast.makeText(this, outputInfoString,Toast.LENGTH_LONG);
         outputInfoToast.show();
     }
-
 }

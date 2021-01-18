@@ -43,7 +43,7 @@
             android:visibility="gone" />
 
         <ListView
-            android:id="@+id/pairedList"
+            android:id="@+id/paired_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@+id/other_discoverable_devices_title"

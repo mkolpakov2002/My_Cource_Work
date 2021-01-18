@@ -6,10 +6,14 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 
+import androidx.annotation.Nullable;
+
 public class MyService extends Service {
 
     MediaPlayer player;
-    public IBinder onBind(Intent arg0) {
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
         //not implemented
         return null;
     }
@@ -20,14 +24,18 @@ public class MyService extends Service {
         player.setLooping(false);
         player.setVolume(100,100);
     }
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        player.start();
+        new Thread(() -> {
+            player.start();
+        }).start();
         return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        player.stop(); //остановка плеера
+        super.onDestroy();
+        stopSelf();
         player.release(); //освобождение используемых проигрывателем ресурсов
     }
 

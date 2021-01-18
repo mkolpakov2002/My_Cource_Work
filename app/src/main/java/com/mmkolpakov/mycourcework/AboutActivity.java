@@ -32,4 +32,5 @@ public class AboutActivity extends AppCompatActivity {
             isMusicPlaying = false;
         }
     }
+
 }
