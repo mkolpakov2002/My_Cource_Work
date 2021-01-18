@@ -18,6 +18,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean stateOfFabAddDevice = false;
     private static final String TAG = "MainActivity";
     public TextView pairedDevicesTitle;
+    public TextView otherDevices;
     // SPP UUID сервиса
     public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     BluetoothSocket clientSocket = null;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         this.fab_en_bt = findViewById(R.id.floating_action_button_En_Bt);
         this.pairedList = findViewById(R.id.pairedList);
         pairedDevicesTitle = findViewById(R.id.paired_devices_title);
+        otherDevices = findViewById(R.id.other_discoverable_devices_title);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         pairedList.setOnItemClickListener((parent, view, position, id) -> {
@@ -218,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
                 if(!stateOfFabAddDevice){
                     fab_add_device.show();
                     stateOfFabAddDevice = true;
+                    pairedDevicesTitle.setVisibility(View.VISIBLE);
+                    otherDevices.setVisibility(View.VISIBLE);
                 }
                 if (stateOfFabEnBt) {
                     fab_en_bt.hide();
@@ -228,6 +233,9 @@ public class MainActivity extends AppCompatActivity {
                 if(stateOfFabAddDevice){
                     fab_add_device.hide();
                     stateOfFabAddDevice = false;
+                    pairedDevicesTitle.setVisibility(View.GONE);
+                    otherDevices.setVisibility(View.GONE);
+                    pairedList.setAdapter(null);
                 }
                 // Bluetooth выключен. Предложим пользователю включить его.
                 if (!stateOfFabEnBt) {
