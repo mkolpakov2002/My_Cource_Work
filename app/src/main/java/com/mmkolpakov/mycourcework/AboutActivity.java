@@ -12,7 +12,7 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_main_settings);
         isMusicPlaying = false;
 
     }
@@ -22,13 +22,13 @@ public class AboutActivity extends AppCompatActivity {
     boolean isMusicPlaying;
     public void playMusicVoid(View v){
         if (!isMusicPlaying){
-        Intent playMusicService=new Intent(this, MyService.class);
+        Intent playMusicService=new Intent(this, AboutService.class);
         startService(playMusicService);
         isMusicPlaying = true;
         Toast outputInfoToast = Toast.makeText(this, "Запуск пасхалки!",Toast.LENGTH_LONG);
         outputInfoToast.show();
         } else {
-            stopService(new Intent(this, MyService.class));
+            stopService(new Intent(this, AboutService.class));
             isMusicPlaying = false;
         }
     }

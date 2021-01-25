@@ -3,7 +3,10 @@ package com.mmkolpakov.mycourcework;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -15,7 +18,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.provider.Settings;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +26,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
     public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     BluetoothSocket clientSocket = null;
     OutputStream outStream = null;
-
+    public boolean stateOfLamp = false;
+    public boolean stateOfConnection = false;
+    String selectedDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         this.fabToAddDevice = findViewById(R.id.floating_action_button_Add_Device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
         this.pairedList = findViewById(R.id.paired_list);
@@ -69,8 +74,7 @@ public class MainActivity extends AppCompatActivity {
         fabToAddDevice.hide();
 
         pairedList.setOnItemClickListener((parent, view, position, id) -> {
-            int positionOfSelectedDevice = position;
-            startSendingData(positionOfSelectedDevice);
+            checkDeviceAddress(position);
         });
         fabToAddDevice.setOnClickListener(view -> {
             Intent intent_add_device = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
@@ -107,6 +111,27 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showToast("Not success");
+
+        }
+    };
+    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showToast("success");
+            Intent startSendingData = new Intent(MainActivity.this,SendDataActivity.class);
+            startSendingData.putExtra("idOfDevice",selectedDevice);
+
+            startActivity(startSendingData);
+
+        }
+    };
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -124,55 +149,19 @@ public class MainActivity extends AppCompatActivity {
         return btAdapter.isEnabled();
     }
 
-    public void startSendingData(int positionOfSelectedDevice){
+    public void checkDeviceAddress(int positionOfSelectedDevice){
         Object listItem = pairedList.getItemAtPosition(positionOfSelectedDevice);
-        String selectedDevice = listItem.toString();
+        selectedDevice = listItem.toString();
         //Получили информацию с выбранной позиции List View в String виде
         showToast(listItem.toString());
         int i = selectedDevice.indexOf(':');
         i = i - 2;
         //В текущем пункте List View находим первый символ ":", всё после него, а также два символа до него - адрес выбранного устройства
         selectedDevice = selectedDevice.substring(i);
-        //Сокет, с помощью которого мы будем отправлять данные на выбранное устройство
-        //соединение с устройством с выбранным адресом Bluetooth модуля.
-        BluetoothDevice device = btAdapter.getRemoteDevice(selectedDevice);
+        Intent startBluetoothConnectionService =new Intent(this, BluetoothConnectionService.class);
+        startBluetoothConnectionService.putExtra("idOfDevice",selectedDevice);
+        startService(startBluetoothConnectionService);
 
-        try {
-            clientSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) {
-            Log.d("BLUETOOTH", e.getMessage());
-        }
-        btAdapter.cancelDiscovery();
-        try {
-
-            clientSocket.connect();
-            Log.d(TAG, "...Соединение установлено и готово к передачи данных...");
-        } catch (IOException e) {
-            try {
-                clientSocket.close();
-            } catch (IOException e2) {
-                Log.d("BLUETOOTH", e2.getMessage());
-            }
-        }
-        try {
-            outStream = clientSocket.getOutputStream();
-        } catch (IOException e) {
-            Log.d("BLUETOOTH", e.getMessage());
-        }
-        try{
-            int sending_data;
-            //изменяем данные для посылки
-            sending_data = 60;
-            //byte[] msgBuffer = sending_data.getBytes();
-            //Пишем данные в выходной поток
-            if (outStream != null) {
-                outStream.write(sending_data);
-                //Выводим сообщение об успешном подключении
-                Toast.makeText(getApplicationContext(), "CONNECTED", Toast.LENGTH_LONG).show();
-            }
-        } catch (IOException | SecurityException | IllegalArgumentException e) {
-            Log.d("BLUETOOTH", e.getMessage());
-        }
     }
 
     public void refreshApplication(){
@@ -188,8 +177,8 @@ public class MainActivity extends AppCompatActivity {
                 stateOfFabToAddDevice = true;
                 pairedDevicesTitleTextView.setVisibility(View.VISIBLE);
                 otherDevicesTextView.setVisibility(View.VISIBLE);
-                searchForDevice();
             }
+            searchForDevice();
         } else {
             if(stateOfFabToAddDevice){
                 fabToAddDevice.hide();
@@ -208,8 +197,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
+
     public void searchForDevice(){
         ListView pairedList = findViewById(R.id.paired_list);
+        pairedList.setAdapter(null);
         Set<BluetoothDevice> pairedDevices= btAdapter.getBondedDevices();
         // создаем адаптер
         // Если список спаренных устройств не пуст
@@ -223,9 +217,6 @@ public class MainActivity extends AppCompatActivity {
                 devicesList.addAll( Arrays.asList(deviceHardwareAddress) );
                 ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, devicesList);
                 pairedList.setAdapter( listAdapter );
-
-
-
             }
         } else {
             //no_devices_added
@@ -253,7 +244,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showToast(String outputInfoString){
-        Toast outputInfoToast = Toast.makeText(this, outputInfoString,Toast.LENGTH_LONG);
+        Toast outputInfoToast = Toast.makeText(this, outputInfoString,Toast.LENGTH_SHORT);
         outputInfoToast.show();
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mMessageReceiverNotSuccess);
+        unregisterReceiver(mMessageReceiverSuccess);
     }
 }

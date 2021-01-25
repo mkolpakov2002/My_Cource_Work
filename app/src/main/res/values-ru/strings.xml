@@ -11,7 +11,7 @@
     <string name="suggestionEnableBluetooth">Пожалуйста, включите bluetooth чтобы приложение заработало!</string>
     <string name="suggestionNoBtAdapter">Извините, на вашем устройстве нет bluetooth адаптера</string>
     <string name="fab_content_desc">Добавить устройство</string>
-    <string name="error">Ошибка приложения!</string>
+    <string name="error">Ошибка приложения! Попробуйте перезапустить активити</string>
     <string name="openMainActivity">Назад</string>
     <string name="btnEnBt">Включить bluetooth</string>
     <string name="refresh_application">Обновить</string>
@@ -19,4 +19,7 @@
     <string name="other_discoverable_devices">Новые устройства могут быть добавлены по кнопке ниже</string>
     <string name="no_devices_added">Нет добавленных устройств</string>
     <string name="hse_logo">МИЭМ</string>
+    <string name="list_of_commands">Список доступных комманд:</string>
+    <string name="send_1_command">Отправить 1 на устройство</string>
+    <string name="send_0_command">Отправить 0 на устройство</string>
 </resources>

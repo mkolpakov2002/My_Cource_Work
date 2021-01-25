@@ -13,9 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyCourceWork">
+        <activity android:name=".SendDataActivity"></activity>
+
         <service
-            android:name=".MyService"
-            android:enabled="true"></service>
+            android:name=".BluetoothConnectionService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".AboutService"
+            android:enabled="true" />
 
         <activity
             android:name=".AboutActivity"

@@ -12,7 +12,7 @@
     <string name="suggestionEnableBluetooth">Please, enable bluetooth to get app working!</string>
     <string name="suggestionNoBtAdapter">Sorry, no bluetooth adapter on your device</string>
     <string name="fab_content_desc">Add Device</string>
-    <string name="error">App error!</string>
+    <string name="error">App error! Try to refrash activity</string>
     <string name="openMainActivity">Go back</string>
     <string name="btnEnBt">Enable bluetooth</string>
     <string name="refresh_application">Refresh</string>
@@ -20,4 +20,7 @@
     <string name="other_discoverable_devices">New devices can be added by clicking the button below</string>
     <string name="no_devices_added">No devices added</string>
     <string name="hse_logo">MIEM</string>
+    <string name="list_of_commands">List of available commands:</string>
+    <string name="send_1_command">Send 1 to device</string>
+    <string name="send_0_command">Send 0 to device</string>
 </resources>
