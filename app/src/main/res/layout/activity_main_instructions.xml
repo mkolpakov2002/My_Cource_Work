@@ -4,10 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SendDataActivity">
+    tools:context=".InstructionsActivity">
+
+    <Button
+        android:id="@+id/retToMainActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:onClick="retToMainActivityVoid"
+        android:text="@string/openMainActivity"
+        app:cornerRadius="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView3" />
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/list_of_commands_textView_toolBar"
+        android:id="@+id/instructions_AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorAccent"
@@ -21,10 +33,10 @@
             android:layout_height="19dp" />
 
         <TextView
-            android:id="@+id/list_of_commands_textView"
+            android:id="@+id/instructions_textView_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/list_of_commands"
+            android:text="@string/instructions_title"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
@@ -32,45 +44,45 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/hse_logo"
+        android:onClick="playMusicVoid"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/instructions_AppBarLayout"
+        app:srcCompat="@drawable/hse_photo" />
+
     <ScrollView
-        android:id="@+id/scrollView2"
+        android:id="@+id/scrollView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_of_commands_textView_toolBar">
+        app:layout_constraintTop_toBottomOf="@+id/imageButton">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/button_to_send_0"
+            <TextView
+                android:id="@+id/instructionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="sendZeroButtonVoid"
-                android:text="@string/send_0_command" />
-
-            <Button
-                android:id="@+id/button_to_send_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="sendOneButtonVoid"
-                android:text="@string/send_1_command" />
-
-
+                android:autoLink="web"
+                android:text="@string/instruction_for_app" />
         </LinearLayout>
     </ScrollView>
-
-    <ProgressBar
-        android:id="@+id/progressBarCheckSocketState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

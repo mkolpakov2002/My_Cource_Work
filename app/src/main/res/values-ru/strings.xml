@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Cource Work</string>
-    <string name="action_settings">О программе</string>
+    <string name="app_name">Arduino Bluetooth Manager</string>
+    <string name="action_instructions">Инструкции</string>
     <string name="first_fragment_label">Первый фрагмент</string>
     <string name="second_fragment_label">Второй фрагмент</string>
     <string name="next">Включить bluetooth</string>
     <string name="previous">Назад</string>
+    <string name="my_link"><a href="https://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing">Ссылка</a></string>
     <string name="hello_first_fragment">Привет, первый фрагмент</string>
     <string name="hello_second_fragment">Привет, второй фрагмент</string>
     <string name="suggestionEnableBluetooth">Пожалуйста, включите bluetooth чтобы приложение заработало!</string>
@@ -15,11 +16,18 @@
     <string name="openMainActivity">Назад</string>
     <string name="btnEnBt">Включить bluetooth</string>
     <string name="refresh_application">Обновить</string>
-    <string name="paired_devices">Список связанных устройств</string>
-    <string name="other_discoverable_devices">Новые устройства могут быть добавлены по кнопке ниже</string>
+    <string name="paired_devices">Список сопряжённых устройств</string>
+    <string name="other_discoverable_devices">Новые сопряжённые устройства могут быть добавлены по кнопке ниже</string>
     <string name="no_devices_added">Нет добавленных устройств</string>
     <string name="hse_logo">МИЭМ</string>
     <string name="list_of_commands">Список доступных комманд:</string>
     <string name="send_1_command">Отправить 1 на устройство</string>
     <string name="send_0_command">Отправить 0 на устройство</string>
+    <string name="incoming_data">Входящие данные с Arduino:</string>
+    <string name="deviceIsSelected">Соединение уже начато, пожалуйста подождите</string>
+    <string name="no_paired_devices">Нет сопряжённых устройств, добавьте их в настройках по кнопке ниже</string>
+    <string name="instruction_alert">Подсказка</string>
+    <string name="ok">Ок</string>
+    <string name="instruction_for_app">Используйте это приложение, чтобы подключиться к вашим роботизированным устройствам. Если список доступных устройств пуст, перейдите в настройки нажатием на назначенную для этого кнопку, создайте новое соединение. Для подключения доступно только одно устройство, чтобы начать соединение нажмите по нему в списке доступных устройств. Передача данных осуществляется по протоколу, доступному по ссылке: \nhttps://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing. \nПриложение создано в рамках курсовой работы Колпакова Максима Максимовича в 2021 году.</string>
+    <string name="instructions_title">Инструкции</string>
 </resources>

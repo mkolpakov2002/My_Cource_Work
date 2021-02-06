@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.mmkolpakov.mycourcework">
+    package="com.mmkolpakov.mycoursework">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -12,27 +14,33 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyCourceWork">
-        <activity android:name=".SendDataActivity"></activity>
+        android:theme="@style/Theme.MyCourseWork">
+        <activity
+            android:name="com.mmkolpakov.mycoursework.SendDataActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MyCourseWork.NoActionBar" />
 
         <service
-            android:name=".BluetoothConnectionService"
+            android:name="com.mmkolpakov.mycoursework.BluetoothConnectionService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".AboutService"
+            android:name="com.mmkolpakov.mycoursework.MusicService"
             android:enabled="true" />
 
         <activity
-            android:name=".AboutActivity"
-            android:screenOrientation="portrait" />
+            android:name="com.mmkolpakov.mycoursework.InstructionsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MyCourseWork.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.mmkolpakov.mycoursework.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyCourceWork.NoActionBar">
+            android:theme="@style/Theme.MyCourseWork.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

@@ -1,12 +1,13 @@
 <resources>
-    <string name="app_name">My Cource Work</string>
-    <string name="action_settings">About programm</string>
+    <string name="app_name">Arduino Bluetooth Manager</string>
+    <string name="action_instructions">Instructions</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Enable Bluetooth</string>
     <string name="previous">Previous</string>
 
+    <string name="my_link"><a href="https://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing">Link</a></string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="suggestionEnableBluetooth">Please, enable bluetooth to get app working!</string>
@@ -16,11 +17,18 @@
     <string name="openMainActivity">Go back</string>
     <string name="btnEnBt">Enable bluetooth</string>
     <string name="refresh_application">Refresh</string>
-    <string name="paired_devices">List of paired devices</string>
-    <string name="other_discoverable_devices">New devices can be added by clicking the button below</string>
+    <string name="paired_devices">List of bounded devices</string>
+    <string name="other_discoverable_devices">New bounded devices can be added by clicking the button below</string>
     <string name="no_devices_added">No devices added</string>
     <string name="hse_logo">MIEM</string>
     <string name="list_of_commands">List of available commands:</string>
     <string name="send_1_command">Send 1 to device</string>
     <string name="send_0_command">Send 0 to device</string>
+    <string name="incoming_data">Incoming data from Arduino:</string>
+    <string name="deviceIsSelected">Connection is already started, please wait</string>
+    <string name="no_paired_devices">No bounded devices, add them in settings by clicking the button below</string>
+    <string name="instruction_alert">Tip</string>
+    <string name="ok">Ok</string>
+    <string name="instruction_for_app">Use this app to connect to your robotic devices. If the list of available devices is empty, go to the settings by clicking the assigned button, make new connection. Only one device is available for connection, to start connection tap on your device. Data transfer is carried out using the protocol available at the link: \nhttps://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing.  \nThe application was created as part of the course work of Maxim Kolpakov in 2021.</string>
+    <string name="instructions_title">Instructions</string>
 </resources>
