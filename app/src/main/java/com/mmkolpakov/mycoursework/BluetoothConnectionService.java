@@ -22,8 +22,6 @@ public class BluetoothConnectionService extends Service {
     public BluetoothAdapter btAdapter;
     public boolean stateOfConnection = false;
     static BluetoothSocket clientSocket;
-    private final StringBuilder sb = new StringBuilder();
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -47,7 +45,6 @@ public class BluetoothConnectionService extends Service {
                     Log.d("BLUETOOTH", e.getMessage());
                     stateOfConnection = false;
                 }
-
                 try {
                     clientSocket.connect();
                     // Отключаем поиск устройств для сохранения заряда батареи

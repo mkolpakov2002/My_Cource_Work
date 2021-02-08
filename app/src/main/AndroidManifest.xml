@@ -23,7 +23,7 @@
         <service
             android:name="com.mmkolpakov.mycoursework.BluetoothConnectionService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name="com.mmkolpakov.mycoursework.MusicService"
             android:enabled="true" />
@@ -36,7 +36,8 @@
             android:name="com.mmkolpakov.mycoursework.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyCourseWork.NoActionBar">
+            android:theme="@style/Theme.MyCourseWork.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />

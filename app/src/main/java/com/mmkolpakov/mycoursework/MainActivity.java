@@ -13,30 +13,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements DevicesAdapter.SelectedDevice, SwipeRefreshLayout.OnRefreshListener {
 
     public ExtendedFloatingActionButton fabToEnBt;
     public ExtendedFloatingActionButton fabToAddDevice;
-    ListView pairedList;
+    RecyclerView pairedList;
+    SearchView searchView;
     //инициализация swipe refresh
     SwipeRefreshLayout swipeToRefreshLayout;
     public BluetoothAdapter btAdapter;
@@ -54,10 +58,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     AlertDialog.Builder alertDialogBuilder;
     String deviceHardwareAddress;
     ArrayAdapter<String> listAdapter;
-
     public static BluetoothDevice device;
     public static BluetoothSocket clientSocket;
     String selectedDevice;
+    DevicesAdapter devicesAdapter;
+
+    public static void setBack_pressed(long back_pressed) {
+        MainActivity.back_pressed = back_pressed;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +78,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         this.fabToAddDevice = findViewById(R.id.floating_action_button_Add_Device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+
+
         pairedList = findViewById(R.id.paired_list);
+        pairedList.setLayoutManager(new LinearLayoutManager(this));
+        pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+
         pairedDevicesTitleTextView = findViewById(R.id.paired_devices_title);
 
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
@@ -83,7 +97,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fabToEnBt.hide();
         fabToAddDevice.hide();
 
-        pairedList.setOnItemClickListener((parent, view, position, id) -> checkDeviceAddress(position));
+        //pairedList.setOnItemClickListener((parent, view, position, id) -> checkDeviceAddress(position));
+
 
         fabToAddDevice.setOnClickListener(view -> {
             Intent intent_add_device = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
@@ -103,6 +118,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem menuItem = menu.findItem(R.id.search_device);
+        searchView = (SearchView) menuItem.getActionView();
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //запускается, когда будет нажата кнопка поиска
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //вызывается после ввода пользователем каждого символа в текстовом поле
+                devicesAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
         return true;
     }
 
@@ -116,6 +148,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         if (id == R.id.refresh_application) {
             onRefresh();
+            return true;
+        }
+        if (id == R.id.search_device) {
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -165,11 +201,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     //Получаем адрес устройства из List View
-    public void checkDeviceAddress(int positionOfSelectedDevice) {
+    public void checkDeviceAddress(DeviceModel deviceModel) {
         if (!isItemSelected) {
+
             isItemSelected = true;
-            Object listItem = pairedList.getItemAtPosition(positionOfSelectedDevice);
-            selectedDevice = listItem.toString();
+
+            selectedDevice = deviceModel.getDeviceName();
             //Get information from List View in String
             showToast(selectedDevice);
             int i = selectedDevice.indexOf(':');
@@ -189,29 +226,43 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
+
     // Добавляем сопряжённые устройства в List View
     public void searchForDevice(){
-        ListView pairedList = findViewById(R.id.paired_list);
+        //ListView pairedList = findViewById(R.id.paired_list);
         // Обновление List View - удаление старых данных
         pairedList.setAdapter(null);
-        Set<BluetoothDevice> pairedDevices= btAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
         // Если список спаренных устройств не пуст
         if(pairedDevices.size()>0) {
             if (!stateOfAlertToSendData) {
                 createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert), getResources().getString(R.string.other_discoverable_devices));
             }
             stateOfAlertToSendData = true;
+            List<DeviceModel> devicesList = new ArrayList<>();
+            List<String> a = new ArrayList<String>();
+
+
+            //listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, devicesList);
             // устанавливаем связь между данными
-            pairedList.setAdapter(listAdapter);
-            ArrayList<String> devicesList = new ArrayList<String>();
-            listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, devicesList);
+            //pairedList.setAdapter(listAdapter);
             // проходимся в цикле по этому списку
             for (BluetoothDevice device : pairedDevices) {
                 // Обновление List View - добавляем в него сопряжённые устройства
                 deviceHardwareAddress = device.getName() + "\n" + device.getAddress(); // Name + MAC address в виде String переменной
-                devicesList.add(deviceHardwareAddress);
-                listAdapter.notifyDataSetChanged();
+                a.add(deviceHardwareAddress);
             }
+            String[] array = a.toArray(new String[0]);
+
+            for (String s : array) {
+                DeviceModel userModel = new DeviceModel(s);
+
+                devicesList.add(userModel);
+            }
+            devicesAdapter = new DevicesAdapter(devicesList, this);
+
+            pairedList.setAdapter(devicesAdapter);
+
             pairedDevicesTitleTextView.setText(R.string.paired_devices);
             //getListViewHeightBasedOnChildren(pairedList);
             //TODO
@@ -258,20 +309,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onDestroy();
         unregisterReceiver(mMessageReceiverNotSuccess);
         unregisterReceiver(mMessageReceiverSuccess);
-    }
-
-    public static void getListViewHeightBasedOnChildren(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter != null) {
-            int totalHeight = 0;
-            int size = listAdapter.getCount();
-            for (int i = 0; i < size; i++) {
-                View listItem = listAdapter.getView(i, null, listView);
-                listItem.measure(0, 0);
-                totalHeight += listItem.getMeasuredHeight();
-            }
-            totalHeight = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        }
     }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
@@ -327,5 +364,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // объект Builder создал диалоговое окно и оно готово появиться на экране
         // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
         builder.show();
+    }
+
+    @Override
+    public void selectedDevice(DeviceModel deviceModel) {
+        checkDeviceAddress(deviceModel);
+    }
+
+    private static long back_pressed;
+
+    @Override
+    public void onBackPressed() {
+        //searchView.clearFocus();
+        if (searchView.isIconified()) {
+            searchView.setIconified(true);
+        } else {
+            if (back_pressed + 2000 > System.currentTimeMillis()) {
+                super.onBackPressed();
+            } else {
+                showToast("Press again to exit");
+            }
+        }
     }
 }
