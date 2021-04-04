@@ -18,6 +18,7 @@
         android:id="@+id/search_device"
         android:icon="@drawable/ic_baseline_search_24"
         android:orderInCategory="100"
+
         android:title="Search for device"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />

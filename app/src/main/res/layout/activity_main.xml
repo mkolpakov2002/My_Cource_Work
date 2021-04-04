@@ -3,24 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@color/colorPrimary"
+    android:background="@drawable/background_bg"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <LinearLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/Theme.MyCourseWork.ActionBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -40,21 +40,29 @@
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/swipe_refresh_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/paired_list"
-            android:textSize="16sp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="3dp"
+            android:fadeScrollbars="false"
+            android:scrollbarSize="5dp"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbarThumbVertical="@android:color/darker_gray"
+            android:scrollbars="vertical"
+            android:textSize="16sp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
@@ -80,7 +88,8 @@
         app:icon="@drawable/ic_baseline_add_24"
         app:iconTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/floating_action_button_En_Bt"
@@ -95,5 +104,6 @@
         app:icon="@drawable/ic_baseline_bluetooth_24"
         app:iconTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

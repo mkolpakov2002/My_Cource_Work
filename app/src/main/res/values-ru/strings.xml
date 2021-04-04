@@ -29,5 +29,11 @@
     <string name="instruction_alert">Подсказка</string>
     <string name="ok">Ок</string>
     <string name="instruction_for_app">Используйте это приложение, чтобы подключиться к вашим роботизированным устройствам. Если список доступных устройств пуст, перейдите в настройки нажатием на назначенную для этого кнопку, создайте новое соединение. Для подключения доступно только одно устройство, чтобы начать соединение нажмите по нему в списке доступных устройств. Передача данных осуществляется по протоколу, доступному по ссылке: \nhttps://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing. \nПриложение создано в рамках курсовой работы Колпакова Максима Максимовича в 2021 году.</string>
-    <string name="instructions_title">Инструкции</string>
+    <string name="instructions_title">Инструкция</string>
+    <string name="clear">Понятно</string>
+    <string name="button_forward">Вперёд</string>
+    <string name="button_backward">Назад</string>
+    <string name="button_leftward">Влево</string>
+    <string name="button_rightward">Вправо</string>
+    <string name="button_stop">Стоп</string>
 </resources>

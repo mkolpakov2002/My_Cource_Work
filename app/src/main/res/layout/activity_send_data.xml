@@ -1,76 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SendDataActivity">
+    android:background="@color/colorAccent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/list_of_commands_textView_toolBar"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorAccent"
-        android:theme="@style/Theme.MyCourseWork.ActionBar"
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/swipe_refresh_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Space
+        <SeekBar
+            android:id="@+id/seekBar"
             android:layout_width="match_parent"
-            android:layout_height="19dp" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/list_of_commands_textView"
+            android:id="@+id/textViewNameManual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/list_of_commands"
+            android:text="Устройство"
             android:textAlignment="center"
-            android:textColor="#FFFFFF"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <ScrollView
-        android:id="@+id/scrollView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_of_commands_textView_toolBar">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Switch
+            android:id="@+id/switch_hold_command_mm"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="Удержание команды"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewNameManual" />
 
-            <Button
-                android:id="@+id/button_to_send_0"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="sendZeroButtonVoid"
-                android:text="@string/send_0_command" />
+        <Button
+            android:id="@+id/button_left_45"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:text="Left\n45"
+            android:visibility="invisible"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_left"
+            app:layout_constraintEnd_toStartOf="@+id/button_up"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <Button
-                android:id="@+id/button_to_send_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="sendOneButtonVoid"
-                android:text="@string/send_1_command" />
+        <Button
+            android:id="@+id/button_up"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/button_forward"
+            android:textSize="13sp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_stop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_right_45"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:text="Right\n45"
+            android:visibility="invisible"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_right"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button_up"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <Button
+            android:id="@+id/button_left"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:padding="0dp"
+            android:text="@string/button_leftward"
+            android:textSize="13sp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_down"
+            app:layout_constraintEnd_toStartOf="@+id/button_stop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <Button
+            android:id="@+id/button_stop"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/button_stop"
+            android:textSize="13sp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_down"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_right"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            android:padding="0dp"
+            android:text="@string/button_rightward"
+            android:textSize="13sp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toTopOf="@+id/button_down"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button_stop"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <Button
+            android:id="@+id/button_left_90"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginTop="16dp"
+            android:text="Left\n90"
+            android:visibility="invisible"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintEnd_toStartOf="@+id/button_down"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_left" />
+
+        <Button
+            android:id="@+id/button_down"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:padding="0dp"
+            android:text="@string/button_backward"
+            android:textSize="13sp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_right_90"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginTop="16dp"
+            android:text="Right\n90"
+            android:visibility="invisible"
+            style="@style/Widget.AppCompat.Button.Colored"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/button_down"
+            app:layout_constraintTop_toBottomOf="@+id/button_right" />
 
 
-        </LinearLayout>
-    </ScrollView>
+        <TextView
+            android:id="@+id/incoming_data"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/textview_bg"
+            android:gravity="bottom"
+            android:text="Терминал"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/button_up"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_hold_command_mm" />
 
-    <ProgressBar
-        android:id="@+id/progressBarCheckSocketState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,5 +30,11 @@
     <string name="instruction_alert">Tip</string>
     <string name="ok">Ok</string>
     <string name="instruction_for_app">Use this app to connect to your robotic devices. If the list of available devices is empty, go to the settings by clicking the assigned button, make new connection. Only one device is available for connection, to start connection tap on your device. Data transfer is carried out using the protocol available at the link: \nhttps://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing.  \nThe application was created as part of the course work of Maxim Kolpakov in 2021.</string>
-    <string name="instructions_title">Instructions</string>
+    <string name="instructions_title">Help</string>
+    <string name="clear">Clear</string>
+    <string name="button_forward">forward</string>
+    <string name="button_backward">backward</string>
+    <string name="button_leftward">leftward</string>
+    <string name="button_rightward">rightward</string>
+    <string name="button_stop">stop</string>
 </resources>
