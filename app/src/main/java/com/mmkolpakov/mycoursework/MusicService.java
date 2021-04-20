@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -25,19 +27,14 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        player = null;
+        player = MediaPlayer.create(this, R.raw.hse_anthem);
+        player.setLooping(true); // Set looping
+        player.setVolume(100,100);
+
     }
-    @Override
+
     public int onStartCommand(Intent intent, int flags, int startId) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                player = MediaPlayer.create(MusicService.this, R.raw.hse_anthem);
-                player.setLooping(true);
-                player.setVolume(100, 100);
-                player.start();
-            }
-        }).start();
+        player.start();
         return Service.START_STICKY;
     }
 

@@ -132,6 +132,9 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         hold_command.setOnCheckedChangeListener(this);
 
         Arrays.fill(message, (byte) 0);
+        //TODO
+        //тип устройства куби
+        message[3] = (byte) 0x41;
 
     }
 

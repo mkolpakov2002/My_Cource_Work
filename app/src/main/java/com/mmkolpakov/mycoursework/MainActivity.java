@@ -41,24 +41,21 @@ import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity implements DevicesAdapter.SelectedDevice, SwipeRefreshLayout.OnRefreshListener {
 
-    public ExtendedFloatingActionButton fabToEnBt;
-    public ExtendedFloatingActionButton fabToAddDevice;
+    ExtendedFloatingActionButton fabToEnBt;
+    ExtendedFloatingActionButton fabToAddDevice;
     RecyclerView pairedList;
     SearchView searchView;
     //инициализация swipe refresh
     SwipeRefreshLayout swipeToRefreshLayout;
     public BluetoothAdapter btAdapter;
     ProgressBar progressBar;
-    public boolean stateOfBt = false;
+    boolean stateOfBt = false;
     boolean stateOfAlertToSendData = false;
     boolean stateOfAlertToAddDevice = false;
     static boolean stateOfToastAboutConnection = false;
-    public boolean stateOfFabToEnBt = false;
-    public boolean stateOfFabToAddDevice = false;
-    public static boolean isItemSelected;
-    private static final String TAG = "MainActivity";
+    static boolean isItemSelected;
 
-    public TextView pairedDevicesTitleTextView;
+    TextView pairedDevicesTitleTextView;
     AlertDialog.Builder alertDialogBuilder;
     String deviceHardwareAddress;
     ArrayAdapter<String> listAdapter;
@@ -69,9 +66,6 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
     DevicesAdapter devicesAdapter;
     int isFirstLaunch;
     SharedPreferences sPref;
-    public static void setBack_pressed(long back_pressed) {
-        MainActivity.back_pressed = back_pressed;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
