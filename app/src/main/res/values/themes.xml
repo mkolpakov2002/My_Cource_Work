@@ -15,6 +15,7 @@
         <!-- Status bar color. -->
 
         <!-- Customize your theme here. -->
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.MyCourseWork.NoActionBar">
@@ -42,5 +43,11 @@
         <item name="android:textColorPrimary">@color/black</item>
         <!-- Used for the background -->
         <item name="android:background">@color/white</item>
+    </style>
+    <style name="mySpinnerItemStyle" parent="android:Widget.Spinner">
+        <item name="android:textColor">@color/black</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:background">@drawable/spinner_style</item>
     </style>
 </resources>

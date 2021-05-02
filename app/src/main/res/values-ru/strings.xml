@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Arduino Bluetooth Manager</string>
+    <string name="app_name">Bluetooth Manager</string>
     <string name="action_instructions">Инструкции</string>
     <string name="first_fragment_label">Первый фрагмент</string>
     <string name="second_fragment_label">Второй фрагмент</string>
@@ -10,9 +10,9 @@
     <string name="hello_first_fragment">Привет, первый фрагмент</string>
     <string name="hello_second_fragment">Привет, второй фрагмент</string>
     <string name="suggestionEnableBluetooth">Пожалуйста, включите bluetooth чтобы приложение заработало!</string>
-    <string name="suggestionNoBtAdapter">Извините, на вашем устройстве нет bluetooth адаптера</string>
+    <string name="suggestionNoBtAdapter">Извините, на вашем устройстве нет bluetooth адаптера. Работа приложения невозможна.</string>
     <string name="fab_content_desc">Добавить устройство</string>
-    <string name="error">Ошибка приложения! Попробуйте перезапустить активити</string>
+    <string name="error">Ошибка приложения</string>
     <string name="openMainActivity">Назад</string>
     <string name="btnEnBt">Включить bluetooth</string>
     <string name="refresh_application">Обновить</string>
@@ -36,4 +36,6 @@
     <string name="button_leftward">Влево</string>
     <string name="button_rightward">Вправо</string>
     <string name="button_stop">Стоп</string>
+    <string name="press_again">Нажмите ещё раз для выхода</string>
+    <string name="exit">выйти</string>
 </resources>

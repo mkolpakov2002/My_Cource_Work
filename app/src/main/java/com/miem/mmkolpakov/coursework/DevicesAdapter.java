@@ -1,4 +1,4 @@
-package com.mmkolpakov.mycoursework;
+package com.miem.mmkolpakov.coursework;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -107,12 +107,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesA
             tvDevicename = itemView.findViewById(R.id.devicename);
             imIcon = itemView.findViewById(R.id.imageView);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    selectedDevice.selectedDevice(userModelList.get(getAdapterPosition()));
-                }
-            });
+            itemView.setOnClickListener(view -> selectedDevice.selectedDevice(userModelList.get(getAdapterPosition())));
 
 
         }

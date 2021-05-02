@@ -5,24 +5,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
+    android:background="@drawable/background_bg"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
+    <TextView
+        android:id="@+id/textViewNameManual"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="Панель управления"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/swipe_refresh_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/textViewNameManual">
 
         <SeekBar
             android:id="@+id/seekBar"
@@ -33,153 +48,99 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textViewNameManual"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Устройство"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="italic"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
-
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_hold_command_mm"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:text="Удержание команды"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewNameManual" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHeight_percent="0.05"/>
 
-        <Button
-            android:id="@+id/button_left_45"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginBottom="16dp"
-            android:text="Left\n45"
-            android:visibility="invisible"
-            style="@style/Widget.AppCompat.Button.Colored"
-            app:layout_constraintBottom_toTopOf="@+id/button_left"
-            app:layout_constraintEnd_toStartOf="@+id/button_up"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
+        <ImageButton
             android:id="@+id/button_up"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
+            android:layout_width="0dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/button_forward"
-            android:textSize="13sp"
-            style="@style/Widget.AppCompat.Button.Colored"
+            android:background="@drawable/rounded_button_bg"
+            android:src="@drawable/ic_baseline_keyboard_arrow_up_24"
+            app:layout_constraintDimensionRatio="1"
             app:layout_constraintBottom_toTopOf="@+id/button_stop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/incoming_data"
+            app:layout_constraintHeight_percent="0.15"
+            android:layout_height="0dp" />
 
-        <Button
-            android:id="@+id/button_right_45"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginBottom="16dp"
-            android:text="Right\n45"
-            android:visibility="invisible"
-            style="@style/Widget.AppCompat.Button.Colored"
-            app:layout_constraintBottom_toTopOf="@+id/button_right"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/button_up"
-            app:layout_constraintHorizontal_bias="0.5"/>
-
-        <Button
+        <ImageButton
             android:id="@+id/button_left"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginBottom="16dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/rounded_button_bg"
             android:padding="0dp"
-            android:text="@string/button_leftward"
-            android:textSize="13sp"
-            style="@style/Widget.AppCompat.Button.Colored"
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
             app:layout_constraintBottom_toTopOf="@+id/button_down"
+            app:layout_constraintDimensionRatio="1"
             app:layout_constraintEnd_toStartOf="@+id/button_stop"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintTop_toBottomOf="@+id/button_up"
+            app:layout_constraintHeight_percent="0.15" />
 
-        <Button
+        <ImageButton
             android:id="@+id/button_stop"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/button_stop"
-            android:textSize="13sp"
-            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/rounded_button_bg"
+            android:src="@drawable/ic_baseline_stop_24"
             app:layout_constraintBottom_toTopOf="@+id/button_down"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/button_right"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginBottom="16dp"
-            android:padding="0dp"
-            android:text="@string/button_rightward"
-            android:textSize="13sp"
-            style="@style/Widget.AppCompat.Button.Colored"
-            app:layout_constraintBottom_toTopOf="@+id/button_down"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/button_stop"
-            app:layout_constraintHorizontal_bias="0.5"/>
-
-        <Button
-            android:id="@+id/button_left_90"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginTop="16dp"
-            android:text="Left\n90"
-            android:visibility="invisible"
-            style="@style/Widget.AppCompat.Button.Colored"
-            app:layout_constraintEnd_toStartOf="@+id/button_down"
+            app:layout_constraintDimensionRatio="1"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_left" />
+            app:layout_constraintTop_toBottomOf="@+id/button_up"
+            app:layout_constraintHeight_percent="0.15" />
 
-        <Button
-            android:id="@+id/button_down"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
+        <ImageButton
+            android:id="@+id/button_right"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/rounded_button_bg"
             android:padding="0dp"
-            android:text="@string/button_backward"
-            android:textSize="13sp"
-            style="@style/Widget.AppCompat.Button.Colored"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            app:layout_constraintBottom_toTopOf="@+id/button_down"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/button_stop"
+            app:layout_constraintTop_toBottomOf="@+id/button_up"
+            app:layout_constraintHeight_percent="0.15" />
+
+        <ImageButton
+            android:id="@+id/button_down"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button_bg"
+            android:padding="0dp"
+            android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="1"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/button_right_90"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:layout_marginTop="16dp"
-            android:text="Right\n90"
-            android:visibility="invisible"
-            style="@style/Widget.AppCompat.Button.Colored"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/button_down"
-            app:layout_constraintTop_toBottomOf="@+id/button_right" />
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_stop"
+            app:layout_constraintHeight_percent="0.15" />
 
         <TextView
             android:id="@+id/incoming_data"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
@@ -187,11 +148,9 @@
             android:gravity="bottom"
             android:text="Терминал"
             android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toTopOf="@+id/button_up"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/switch_hold_command_mm" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

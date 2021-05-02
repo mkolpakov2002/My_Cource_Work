@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mmkolpakov.mycoursework">
+    package="com.miem.mmkolpakov.coursework">
 
+    <uses-feature android:name="android.hardware.bluetooth" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,24 +14,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyCourseWork">
         <activity
-            android:name="com.mmkolpakov.mycoursework.SendDataActivity"
+            android:name="com.miem.mmkolpakov.coursework.SendDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.MyCourseWork.NoActionBar" />
 
         <service
-            android:name="com.mmkolpakov.mycoursework.BluetoothConnectionService"
+            android:name="com.miem.mmkolpakov.coursework.BluetoothConnectionService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name="com.mmkolpakov.mycoursework.MusicService"
+            android:name="com.miem.mmkolpakov.coursework.MusicService"
             android:enabled="true" />
 
         <activity
-            android:name="com.mmkolpakov.mycoursework.InstructionsActivity"
+            android:name="com.miem.mmkolpakov.coursework.InstructionsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.MyCourseWork.NoActionBar" />
         <activity
-            android:name="com.mmkolpakov.mycoursework.MainActivity"
+            android:name="com.miem.mmkolpakov.coursework.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.MyCourseWork.NoActionBar"

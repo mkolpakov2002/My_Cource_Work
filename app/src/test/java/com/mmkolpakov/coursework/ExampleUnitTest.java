@@ -1,4 +1,4 @@
-package com.mmkolpakov.mycoursework;
+package com.mmkolpakov.coursework;
 
 import org.junit.Test;
 

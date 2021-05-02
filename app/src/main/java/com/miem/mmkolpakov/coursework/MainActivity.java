@@ -1,23 +1,21 @@
-package com.mmkolpakov.mycoursework;
+package com.miem.mmkolpakov.coursework;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,100 +34,115 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
 public class MainActivity extends AppCompatActivity implements DevicesAdapter.SelectedDevice, SwipeRefreshLayout.OnRefreshListener {
 
+    //Кнопки fab интерфейса
+    //Включение Bluetooth
     ExtendedFloatingActionButton fabToEnBt;
+    //Добавление устройств
     ExtendedFloatingActionButton fabToAddDevice;
+    //Список устройств на главном экране
     RecyclerView pairedList;
+    //Поиск среди устройств на главном экране
     SearchView searchView;
-    //инициализация swipe refresh
+    //инициализация swipe refresh для обновления
     SwipeRefreshLayout swipeToRefreshLayout;
-    public BluetoothAdapter btAdapter;
-    ProgressBar progressBar;
-    boolean stateOfBt = false;
-    boolean stateOfAlertToSendData = false;
+    /*
+    boolean для отслеживания того,
+     была ли единожды показана подсказка по добавлению новых устройств
+    */
     boolean stateOfAlertToAddDevice = false;
-    static boolean stateOfToastAboutConnection = false;
-    static boolean isItemSelected;
-
+    //Заголовок главного экрана
     TextView pairedDevicesTitleTextView;
-    AlertDialog.Builder alertDialogBuilder;
-    String deviceHardwareAddress;
-    ArrayAdapter<String> listAdapter;
-    public static BluetoothDevice device;
-    public static BluetoothSocket clientSocket;
+    //MAC выбранного устройства
     String selectedDeviceId;
+    //Имя выбранного устройства
     String selectedDeviceName;
+    //Адаптер для работы со списком на главном экране
     DevicesAdapter devicesAdapter;
+    //Переменная, хранящая информацию о том, первый ли это запуск
     int isFirstLaunch;
     SharedPreferences sPref;
+    //Диалог при соединении с устройством
+    ProgressDialog progressOfConnectionDialog;
+    //Переменная для хранения времени между нажатиями кнопки назад
+    private static long back_pressed = 0;
+    //таг для логов
+    private final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //инициализация toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        //получение значения для проверки на первый запуск
         sPref = getPreferences(MODE_PRIVATE);
         isFirstLaunch = sPref.getInt("isFirstLaunch", 1);
-
-        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
-        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
-        this.fabToAddDevice = findViewById(R.id.floating_action_button_Add_Device);
-        this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
-
+        //получение сообщений из сервиса по подключению
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success_code_1"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success_code_1"));
+        //инициализация кнопок fab на главном экране
+        //Добавление устройств
+        fabToAddDevice = findViewById(R.id.floating_action_button_Add_Device);
+        //Включение Bluetooth
+        fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+        //инициализация списка устройств
         pairedList = findViewById(R.id.paired_list);
         pairedList.setLayoutManager(new LinearLayoutManager(this));
         pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
-
+        //инициализация заголовка главного экрана
         pairedDevicesTitleTextView = findViewById(R.id.paired_devices_title);
-
-        alertDialogBuilder = new AlertDialog.Builder(this);
-
+        //инициализация swipe to refresh
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeToRefreshLayout.setColorSchemeResources(android.R.color.holo_green_light);
-        progressBar = findViewById(R.id.progressBarStartSendingData);
-        btAdapter = BluetoothAdapter.getDefaultAdapter();
-
+        //по умолчанию все кнопки fab скрыты
         fabToEnBt.hide();
         fabToAddDevice.hide();
-
+        //методы, выполняемые при нажатии кнопок fab
         fabToAddDevice.setOnClickListener(view -> {
+            //открытие списка сопряжённных устройств в меню настроек устройства
             Intent intent_add_device = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
             startActivity(intent_add_device);
         });
         fabToEnBt.setOnClickListener(view -> {
+            //открытие системного диалога с предложением включить Bluetooth
             Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         });
+        //метод, выполняемый при жесте обновления экрана
+        //по-умолчанию onRefresh
         swipeToRefreshLayout.setOnRefreshListener(this);
-        isItemSelected = false;
+        registerReceiver(BluetoothStateChanged, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "Диалог включения Bluetooth закрыт");
+        onRefresh();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        // инициализация элементов меню главного экрана
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        // параметры для поискового меню
         MenuItem menuItem = menu.findItem(R.id.search_device);
         searchView = (SearchView) menuItem.getActionView();
         searchView.setMaxWidth(Integer.MAX_VALUE);
+        // изменение цвета иконки поиска на белый
         ImageView icon = searchView.findViewById(R.id.search_button);
         icon.setColorFilter(getResources().getColor(R.color.white));
+        // методы при взаимодействии со строкой поиска
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //запускается, когда будет нажата кнопка поиска
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 //вызывается после ввода пользователем каждого символа в текстовом поле
@@ -140,168 +153,165 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
         return true;
     }
 
+    // методы вызываемые при нажатии на элементы меню главного экрана
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            Intent intent1 = new Intent(this, InstructionsActivity.class);
-            startActivity(intent1);
+            // запуск Activity с краткой информацией о приложении
+            Log.d(TAG, "запуск Activity с краткой информацией о приложении");
+            startActivity(new Intent(this, InstructionsActivity.class));
             return true;
         }
         if (id == R.id.refresh_application) {
+            // обновление экрана
             onRefresh();
             return true;
         }
         if (id == R.id.search_device) {
-
+            // открытие строки поиска
+            Log.d(TAG, "открытие строки поиска");
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    //Результат работы Service
+    //Результат работы Service при неуспешном соединении
     private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            showToast("Not success");
-            progressBar.setVisibility(INVISIBLE);
-            isItemSelected = false;
-            stateOfToastAboutConnection = false;
+            showToast("Соединение не успешно");
+            progressOfConnectionDialog.hide();
         }
     };
 
+    //результат работы Service при успешном соединении
     private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             //Устройство подключено, Service выполнился успешно
-            showToast("success");
+            showToast("Соединение успешно");
             Intent startSendingData = new Intent(MainActivity.this, SendDataActivity.class);
             startSendingData.putExtra("idOfDevice", selectedDeviceId);
             startSendingData.putExtra("nameOfDevice", selectedDeviceName);
             startActivity(startSendingData);
-            //SendDataActivity.device = device;
-            progressBar.setVisibility(INVISIBLE);
+            progressOfConnectionDialog.hide();
+        }
+    };
+
+    //выполняемый код при изменении состояния bluetooth
+    private final BroadcastReceiver BluetoothStateChanged = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onRefresh();
         }
     };
 
     @Override
     protected void onStart() {
         super.onStart();
+        // проверка на присутствие Bluetooth адаптера у смартфона
         checkForBtAdapter();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        // проверка на присутствие Bluetooth адаптера у смартфона
         checkForBtAdapter();
     }
 
-    //True, если Bluetooth включён
+    //True, если Bluetooth на устройстве включён
     public boolean btIsEnabledFlagVoid(){
-        return btAdapter.isEnabled();
+        return BluetoothAdapter.getDefaultAdapter().isEnabled();
     }
 
-    //Получаем адрес устройства из List View
-    public void checkDeviceAddress(DeviceModel deviceModel) {
-        if (!isItemSelected) {
-
-            isItemSelected = true;
-
-            selectedDeviceId = deviceModel.getDeviceName();
-            selectedDeviceName = selectedDeviceId;
-            //Get information from List View in String
-            showToast(selectedDeviceId);
-            int i = selectedDeviceId.indexOf(':');
-            i = i - 2;
-            //В текущем пункте List View находим первый символ ":", всё после него, а также два символа до него - адрес выбранного устройства
-            selectedDeviceId = selectedDeviceId.substring(i);
-            selectedDeviceName = selectedDeviceName.substring(0,i-1);
-            progressBar.setVisibility(VISIBLE);
-            // запускаем длительную операцию подключения в Service
-            Intent startBluetoothConnectionService = new Intent(this, BluetoothConnectionService.class);
-            startBluetoothConnectionService.putExtra("idOfDevice", selectedDeviceId);
-            startService(startBluetoothConnectionService);
-        } else {
-            if (!stateOfToastAboutConnection) {
-                showToast(getResources().getString(R.string.deviceIsSelected));
-                stateOfToastAboutConnection = true;
-            }
-        }
+    //Получаем адрес устройства из Recycle View
+    public void startBluetoothConnectionService(DeviceModel deviceModel) {
+        //вид получаемой информации - "Name\n00:00:00:00:00:00"
+        //"\n" - это один символ
+        /*
+        В текущем пункте Recycle View находим первый символ ":",
+        всё после него, а также два символа до него - адрес выбранного устройства
+        */
+        selectedDeviceId = deviceModel.getDeviceName()
+                .substring(deviceModel.getDeviceName().indexOf(':') - 2);
+        /*
+        В текущем пункте Recycle View находим первый символ ":",
+        всё кроме последних 3-ёх символов до него - имя выбранного устройства
+        */
+        selectedDeviceName = deviceModel.getDeviceName()
+                .substring(0, deviceModel.getDeviceName().indexOf(':') - 3);
+        showToast(selectedDeviceName + "\n" + selectedDeviceId);
+        DialogChooseRobot dialog = new DialogChooseRobot();
+        dialog.show(this.getSupportFragmentManager(), "dialog");
     }
-
 
     // Добавляем сопряжённые устройства в Recycle View
     public void searchForDevice(){
-        // Обновление List View - удаление старых данных
+        // Обновление Recycle View - удаление старых данных
         pairedList.setAdapter(null);
-        Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = BluetoothAdapter.getDefaultAdapter()
+                .getBondedDevices();
         // Если список спаренных устройств не пуст
         if(pairedDevices.size()>0) {
-            stateOfAlertToSendData = true;
             List<DeviceModel> devicesList = new ArrayList<>();
-            List<String> a = new ArrayList<String>();
-
-
             // устанавливаем связь между данными
             // проходимся в цикле по этому списку
             for (BluetoothDevice device : pairedDevices) {
-                // Обновление List View - добавляем в него сопряжённые устройства
-                deviceHardwareAddress = device.getName() + "\n" + device.getAddress(); // Name + MAC address в виде String переменной
-                a.add(deviceHardwareAddress);
-            }
-            String[] array = a.toArray(new String[0]);
-
-            for (String s : array) {
-                DeviceModel userModel = new DeviceModel(s);
-
-                devicesList.add(userModel);
+                // Обновление Recycle View - добавляем в него сопряжённые устройства
+                devicesList.add(new DeviceModel(device.getName() + "\n" +
+                        device.getAddress()));
             }
             devicesAdapter = new DevicesAdapter(devicesList, this);
-
+            // связь контейнера на экране с реальными данными
             pairedList.setAdapter(devicesAdapter);
-
             pairedDevicesTitleTextView.setText(R.string.paired_devices);
         } else {
+            // список устройств пуст, предложим добавить их
             if (!stateOfAlertToAddDevice) {
                 createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert), getResources().getString(R.string.no_paired_devices));
+                stateOfAlertToAddDevice = true;
             }
-            stateOfAlertToAddDevice = true;
-            //no_devices_added
+            //изменение заголовка главного экрана
             pairedDevicesTitleTextView.setText(R.string.no_devices_added);
+            // нет данных для отображения
             pairedList.setAdapter(null);
         }
     }
 
     // проверка на наличие Bluetooth адаптера; дальнейшее продолжение работы в случае наличия
     public void checkForBtAdapter() {
-        if (btAdapter != null) {
-            if (isFirstLaunch == 1){
+        if (BluetoothAdapter.getDefaultAdapter() != null) {
+            if (isFirstLaunch == 1 && btIsEnabledFlagVoid()){
+                // выполнение кода при первом запуске приложения, когда включён Bluetooth
                 sPref = getPreferences(MODE_PRIVATE);
                 SharedPreferences.Editor ed = sPref.edit();
+                // сохранение переменной int в памяти приложения
+                // 0 - приложение уже было когда-либо запущено
                 ed.putInt("isFirstLaunch", 0);
                 ed.apply();
                 isFirstLaunch = 0;
-                if (btIsEnabledFlagVoid()){
-                    createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert),
-                            getResources().getString(R.string.other_discoverable_devices));
-                }
+                // показ подсказки на экране
+                createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert),
+                        getResources().getString(R.string.other_discoverable_devices));
             }
+            // обновление главного экрана
             onRefresh();
         } else {
-            System.out.println("There is no bluetooth adapter on device!");
-            // объект Builder для создания диалогового окна
-            //suggestionNoBtAdapter
+            // отсутствует Bluetooth адаптер, работа приложения невозможна
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog).create();
             dialog.setTitle(getString(R.string.error));
             dialog.setMessage(getString(R.string.suggestionNoBtAdapter));
-            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+            dialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                     (dialog1, which) -> {
-                        // Closes the dialog and terminates the activity.
+                        // скрывает диалог и завершает работу приложения
                         dialog1.dismiss();
                         MainActivity.this.finish();
                     });
+            // нельзя закрыть этот диалог
+            dialog.setCancelable(false);
+            dialog.show();
         }
     }
 
@@ -322,8 +332,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
     @Override
     public void onRefresh() {
-        stateOfBt = btIsEnabledFlagVoid();
-        if (stateOfBt) {
+        if (btIsEnabledFlagVoid()) {
             // Bluetooth включён, надо скрыть кнопку включения Bluetooth
             fabToEnBt.hide();
             // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
@@ -331,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
             fabToAddDevice.show();
             pairedDevicesTitleTextView.setText(R.string.paired_devices);
             pairedDevicesTitleTextView.setVisibility(View.VISIBLE);
+            // поиск сопряжённых устройств
             searchForDevice();
         } else {
             // Bluetooth выключён, надо скрыть кнопку добавления устройств и другую информацию
@@ -340,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
             // Bluetooth выключён, надо показать кнопку включения Bluetooth
             fabToEnBt.show();
         }
-        // Приложение обновлено, завершаем анимацию обновления
+        // Приложение обновлено, завершаем анимацию обновления (при её наличии)
         swipeToRefreshLayout.setRefreshing(false);
     }
 
@@ -348,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
     // создает диалоговое окно с 1й кнопкой
     private void createOneButtonAlertDialog(String title, String content) {
         // объект Builder для создания диалогового окна
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
         // добавляем различные компоненты в диалоговое окно
         builder.setTitle(title);
         builder.setMessage(content);
@@ -358,41 +368,37 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
             dialog.dismiss();
         });
         // объект Builder создал диалоговое окно и оно готово появиться на экране
-        // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
-        // Create the alert dialog and change Buttons colour
+        // Создание alert dialog и изменение цвета его кнопок
         AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorAccent));
-                //dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.colorAccent));
-            }
+        dialog.setOnShowListener(arg0 -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.colorAccent));
         });
+        // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
         dialog.show();
     }
 
-
-
-    private static long back_pressed = 0;
-
+    //метод, вызываемый при нажатии кнопки назад на главном экране
     @Override
     public void onBackPressed() {
         if (!searchView.isIconified()) {
+            //если открыта строка поиска, сворачиваем её
             searchView.setIconified(true);
         } else {
+            //иначе даём возможность выйти из приложения, но по двойному нажатию кнопки назад
             if (back_pressed + 2000 > System.currentTimeMillis()) {
                 super.onBackPressed();
             } else {
-                showToast("Press again to exit");
+                //показ сообщения, о необходимости второго нажатия кнопки назад при выходе
+                showToast(getResources().getString(R.string.press_again));
             }
             back_pressed = System.currentTimeMillis();
         }
 
     }
-
+    //получение информации о нажатом устройстве, вызов метода для начала соединения
     @Override
     public void selectedDevice(DeviceModel deviceModel) {
-        checkDeviceAddress(deviceModel);
+        startBluetoothConnectionService(deviceModel);
     }
+
 }

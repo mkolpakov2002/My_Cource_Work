@@ -1,11 +1,10 @@
-package com.mmkolpakov.mycoursework;
+package com.miem.mmkolpakov.coursework;
 
 import java.io.Serializable;
 
 public class DeviceModel implements Serializable {
 
-    private String deviceName;
-
+    private final String deviceName;
 
     public DeviceModel(String deviceName) {
         this.deviceName = deviceName;
@@ -15,7 +14,4 @@ public class DeviceModel implements Serializable {
         return deviceName;
     }
 
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
-    }
 }

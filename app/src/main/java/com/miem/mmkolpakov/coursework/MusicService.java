@@ -1,11 +1,9 @@
-package com.mmkolpakov.mycoursework;
+package com.miem.mmkolpakov.coursework;
 
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -14,8 +12,6 @@ public class MusicService extends Service {
 
     //Необязательный сервис - пасхалка, проигрывающая гимн ВШЭ
     static MediaPlayer player;
-    int playerCurrentPosition;
-    int playerContentDuration;
 
     @Nullable
     @Override
