@@ -160,26 +160,24 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    protected void onPause()
+    protected void onStop()
     {
-        super.onPause();
+        super.onStop();
         Log.d(TAG, "Приложение свёрнуто");
         outputText.append("\n"+ "---");
         outputText.append("\n"+ "Приложение свёрнуто");
-        outputText.append("\n"+ "Отправляем данные:" + "\n"+ Arrays.toString(message));
-        dataThreadForArduino.Send_Data(message);
+        Log.d(TAG, "Остановка движения");
+        outputText.append("\n"+ "---");
+        outputText.append("\n"+ "Остановка движения");
+        makeMessage("STOP");
         isNeedToRestartConnection = true;
-        message[4] = (byte) 0x0a;
-        message[5] = (byte) 0xa1;
-        message[6] = (byte) 0x7f;
-
         try
         {
             dataThreadForArduino.Disconnect();                 // отсоединяемся от bluetooth
         }
         catch (Exception e)
         {
-            Log.d(TAG, "Приложение свёрнуто");
+            Log.d(TAG, "Ошибка отключения от устройства");
         }
     }
 
@@ -292,6 +290,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onReceive(Context context, Intent intent) {
             showToast("Соединение не успешно");
+            Log.d(TAG, "...Соединение неуспешно, результат в SendDataActivity...");
             //скрытие окна о соединении
             progressOfConnectionDialog.hide();
             //вызов окна о неуспешном соединении
@@ -303,9 +302,15 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "...Соединение успешно, результат в SendDataActivity...");
+            Log.d(TAG, "...Создание нового потока...");
             //передача данных в поток
+            dataThreadForArduino = new SendDataThread(SendDataActivity.this);
             clientSocket = DeviceHandler.getSocket();
             dataThreadForArduino.setSocket(clientSocket);
+            dataThreadForArduino.setSelectedDevice(selectedDeviceId);
+            dataThreadForArduino.start();
+            Log.d(TAG, "...Поток пущен...");
             //Устройство подключено, Service выполнился успешно
             showToast("Соединение успешно");
             //скрытие окна о соединении

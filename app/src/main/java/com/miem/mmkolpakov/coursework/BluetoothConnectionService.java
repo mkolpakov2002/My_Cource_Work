@@ -123,21 +123,25 @@ public class BluetoothConnectionService extends Service {
             //неуспешно
             if(arguments.getInt("startCode") == 1){
                 resultOfConnectionIntent = new Intent("not_success_code_1");
+                Log.d(TAG, "...Соединение неуспешно, передаю результат в MainActivity...");
             } else {
                 resultOfConnectionIntent = new Intent("not_success_code_2");
+                Log.d(TAG, "...Соединение неуспешно, передаю результат в SendDataActivity...");
             }
         } else {
             //успешно
             if(arguments.getInt("startCode") == 1){
                 resultOfConnectionIntent = new Intent("success_code_1");
+                Log.d(TAG, "...Соединение успешно, передаю результат в MainActivity...");
+                DeviceHandler.setDeviceName(arguments.get("nameOfDevice").toString());
+                DeviceHandler.setDeviceClass(arguments.get("classOfDevice").toString());
+                DeviceHandler.setDeviceId(arguments.get("idOfDevice").toString());
             } else {
                 resultOfConnectionIntent = new Intent("success_code_2");
+                Log.d(TAG, "...Соединение успешно, передаю результат в SendDataActivity...");
             }
             // Сохраняем данные о устройстве через класс посредник
             DeviceHandler.setSocket(clientSocket);
-            DeviceHandler.setDeviceId(arguments.get("idOfDevice").toString());
-            DeviceHandler.setDeviceName(arguments.get("nameOfDevice").toString());
-            DeviceHandler.setDeviceClass(arguments.get("classOfDevice").toString());
         }
         //отправка сообщения о результате
         sendBroadcast(resultOfConnectionIntent);
