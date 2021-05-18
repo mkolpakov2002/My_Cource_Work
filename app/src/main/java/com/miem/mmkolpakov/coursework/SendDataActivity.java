@@ -198,7 +198,6 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public boolean onTouch(View v, MotionEvent event)
         {
-            refreshActivity();
             if(event.getAction() == MotionEvent.ACTION_DOWN)                        // если нажали на кнопку и не важно есть удержание команд или нет
             {
                 int id = v.getId();
@@ -257,6 +256,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     };
 
     void makeMessage(String code){
+        refreshActivity();
         message[5] = ProtocolRepo.getCommandTypeByte("type_move");
         message[6] =  ProtocolRepo.getMoveCommandByte(code);
         if (prevCommand == message[6]){
@@ -341,8 +341,5 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         });
         // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
         dialog.show();
-    }
-    void printIncomingData(){
-
     }
 }

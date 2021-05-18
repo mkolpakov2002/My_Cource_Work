@@ -101,11 +101,9 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesA
     public class DevicesAdapterVh extends RecyclerView.ViewHolder {
 
         TextView tvDevicename;
-        ImageView imIcon;
         public DevicesAdapterVh(@NonNull View itemView) {
             super(itemView);
             tvDevicename = itemView.findViewById(R.id.devicename);
-            imIcon = itemView.findViewById(R.id.imageView);
 
             itemView.setOnClickListener(view -> selectedDevice.selectedDevice(userModelList.get(getAdapterPosition())));
 

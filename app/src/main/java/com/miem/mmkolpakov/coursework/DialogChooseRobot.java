@@ -30,7 +30,7 @@ import java.util.List;
 
 public class DialogChooseRobot extends DialogFragment  {
     Spinner spinnerType;
-    String selectedDeviceName, selectedDeviceId, devType;
+    String selectedDeviceName, selectedDeviceId;
     Context c;
     List<String> listTypes;
     AlertDialog.Builder builder;
@@ -39,6 +39,7 @@ public class DialogChooseRobot extends DialogFragment  {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof Activity){
+            //передаём контекст из Activity
             c = context;
         }
     }
@@ -46,37 +47,45 @@ public class DialogChooseRobot extends DialogFragment  {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        //получаем данные из MainActivity
+        //Имя устройства
         selectedDeviceName = ((MainActivity) c).selectedDeviceName;
+        //MAC адрес устройства
         selectedDeviceId = ((MainActivity) c).selectedDeviceId;
-        listTypes = new ArrayList<>();
-        listTypes = Arrays.asList("type_sphere", "type_anthropomorphic", "type_cubbi", "type_computer", "no_type");
+        //создание диалога как объекта класса AlertDialog()
         builder = new AlertDialog.Builder(c, R.style.AlertDialog);
-
+        //контейнер для View элементов диалога
         LinearLayout layout = new LinearLayout(c);
         layout.setOrientation(LinearLayout.VERTICAL);
-        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(c, android.R.layout.simple_spinner_item, listTypes);
+        //создаём список протоколов в виде листа
+        listTypes = new ArrayList<>();
+        listTypes = Arrays.asList("type_sphere", "type_anthropomorphic", "type_cubbi", "type_computer", "no_type");
+        ArrayAdapter<String> adapterType = new ArrayAdapter<>(c, android.R.layout.simple_spinner_item, listTypes);
         adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //создание выпадающего списка протоколов
         spinnerType = new AppCompatSpinner(c);
+        //связь с данными из листа протоколов
         spinnerType.setAdapter(adapterType);
+        //решение проблем с цветами на разных устройствах
         spinnerType.getBackground().setColorFilter(c.getColor(android.R.color.black), PorterDuff.Mode.SRC_ATOP);
         spinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLACK); /* if you want your item to be white */
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLACK);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        //выбор по умолчанию - type_sphere
         spinnerType.setSelection(0);
+        //параметры отображения выпадающего списка
         spinnerType.setPadding(5,20,5,20);
 
         if(spinnerType.getParent() != null) {
-            ((ViewGroup)spinnerType.getParent()).removeView(spinnerType); // <- fix crash
+            ((ViewGroup)spinnerType.getParent()).removeView(spinnerType); // <- фикс ошибки
         }
         layout.addView(spinnerType);
-
         return builder.setTitle(("Настройка подключения"))
                 .setMessage("Выберите тип подключаемого устройства:")
                 .setView(layout)
@@ -97,12 +106,11 @@ public class DialogChooseRobot extends DialogFragment  {
                     startBluetoothConnectionService.putExtra("startCode", 1);
                     ((MainActivity) c).startService(startBluetoothConnectionService);
                 })
-                .setNegativeButton("Отмена", (dialog, whichButton) -> {
-                    ((MainActivity) c).onRefresh();
-                }
+                //если диалог закрыли - обновить MainActivity
+                .setNegativeButton("Отмена", (dialog, whichButton) -> ((MainActivity) c).onRefresh()
                 )
                 .setOnDismissListener(dialogInterface -> {
-                    //action when dialog is dismissed goes here
+                    //если диалог свернули - обновить MainActivity
                     ((MainActivity) c).onRefresh();
                 })
                 .create();

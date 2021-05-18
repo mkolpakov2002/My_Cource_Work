@@ -115,7 +115,7 @@ public class BluetoothConnectionService extends Service {
         Log.d(TAG, "...Сервис остановлен...");
     }
 
-    // Передаём данные о статусе соединения в Main Activity
+    // Передаём данные о статусе соединения в Activity
     public void resultOfConnection() {
         Intent resultOfConnectionIntent;
         //коды запуска Service - 1 из MainActivity и 2 из SendDataActivity при переподключении

@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
     private static long back_pressed = 0;
     //таг для логов
     private final String TAG = "MainActivity";
+    DividerItemDecoration mDividerItemDecoration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,9 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
         //инициализация списка устройств
         pairedList = findViewById(R.id.paired_list);
         pairedList.setLayoutManager(new LinearLayoutManager(this));
-        pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mDividerItemDecoration = new DividerItemDecoration(pairedList.getContext(),
+                DividerItemDecoration.VERTICAL);
+        pairedList.addItemDecoration(mDividerItemDecoration);
         //инициализация заголовка главного экрана
         pairedDevicesTitleTextView = findViewById(R.id.paired_devices_title);
         //инициализация swipe to refresh
