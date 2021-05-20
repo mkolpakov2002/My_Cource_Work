@@ -1,5 +1,6 @@
 package com.miem.mmkolpakov.coursework;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
@@ -8,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,6 +25,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 public class SendDataActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
@@ -38,6 +45,8 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     BluetoothSocket clientSocket;
     ProtocolRepo protocolRepo;
     boolean isNeedToRestartConnection = false;
+    OutputStream mmOutStream;
+    InputStream mmInStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +90,24 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         registerReceiver(BluetoothStateChanged, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
         message[0] = ProtocolRepo.getDeviceCodeByte("class_android");
-        message[1] = ProtocolRepo.getDeviceCodeByte("class_computer"); // класс и тип устройства отправки
+        message[1] = ProtocolRepo.getDeviceCodeByte("type_computer"); // класс и тип устройства отправки
         message[2] = ProtocolRepo.getDeviceCodeByte("class_arduino"); // класс и тип устройства приема
         //тип устройства
         message[3] = ProtocolRepo.getDeviceCodeByte(DeviceHandler.getDeviceClass());
+
+        OutputStream tmpOut = null;
+        InputStream tmpIn = null;
+        try{
+            tmpOut = clientSocket.getOutputStream();
+            tmpIn = clientSocket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
+        }
+        mmOutStream = tmpOut;
+        mmInStream = tmpIn;
+        startListening();
+
     }
 
     //выполняемый код при изменении состояния bluetooth
@@ -264,7 +287,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             prevCommand = message[6];
         }
         outputText.append("\n"+ "Отправляем данные:" + "\n"+ Arrays.toString(message));
-        dataThreadForArduino.Send_Data(message);
+        dataThreadForArduino.sendData(message);
     }
 
     @Override
@@ -346,5 +369,68 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         });
         // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
         dialog.show();
+    }
+    boolean flag = true;
+    StringBuilder str = new StringBuilder();
+    void startListening() {
+        new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        while(flag){
+                            byte[] buffer = new byte[1024];  // buffer store for the stream
+                            int bytes; // bytes returned from read()
+                            // Keep listening to the InputStream until an exception occurs
+                            // Read from the InputStream
+                            try {
+                                StringBuilder incomingDataBuffer = new StringBuilder();
+
+                                bytes = mmInStream.read(buffer);
+
+                                String incomingMessage = new String(buffer, 0, bytes);
+                                incomingMessage = incomingMessage.replaceAll("\r", "");
+                                str.append(incomingMessage);
+                                int j = 0;
+                                boolean isComplete = false;
+                                while(!isComplete){
+                                    if(str.charAt(j)=='\n' && j+1<=str.length()-1) {
+                                        incomingDataBuffer.append(str.substring(0, j+1));
+                                        incomingData(incomingDataBuffer.toString());
+
+                                        incomingDataBuffer.setLength(0);
+                                        String bufferStr = str.substring(j + 1);
+                                        str.setLength(0);
+                                        str.append(bufferStr);
+                                        j = -1;
+
+                                    } else if(str.charAt(j)=='\n') {
+                                        incomingDataBuffer.append(str);
+                                        incomingData(incomingDataBuffer.toString());
+                                        j = -1;
+                                        str.setLength(0);
+                                    }
+                                    if(str.indexOf("\n") == -1){
+                                        isComplete = true;
+                                    }
+                                    j++;
+                                }
+
+                            } catch (IOException e) {
+                                Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
+                                flag = false;
+                            }
+                        }
+                    }
+
+
+        }).start();
+
+    }
+    synchronized void incomingData(String incomingData){
+        if(!incomingData.equals("\n")){
+            Log.d(TAG, "InputStream: " + incomingData);
+            outputText.append(incomingData);
+        }
+
     }
 }
