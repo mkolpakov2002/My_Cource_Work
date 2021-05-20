@@ -6,7 +6,7 @@ public class DeviceHandler {
     private static BluetoothSocket socket;
     private static String selectedDeviceId;
     private static String selectedDeviceName;
-    private static String selectedDeviceClass;
+    private static String selectedDeviceType;
 
     public static synchronized BluetoothSocket getSocket(){
         return socket;
@@ -32,11 +32,11 @@ public class DeviceHandler {
         DeviceHandler.selectedDeviceName = selectedDeviceName;
     }
 
-    public static synchronized String getDeviceClass(){
-        return selectedDeviceClass;
+    public static synchronized String getDeviceType(){
+        return selectedDeviceType;
     }
 
-    public static synchronized void setDeviceClass(String selectedDeviceClass){
-        DeviceHandler.selectedDeviceClass = selectedDeviceClass;
+    public static synchronized void setDeviceType(String selectedDeviceType){
+        DeviceHandler.selectedDeviceType = selectedDeviceType;
     }
 }

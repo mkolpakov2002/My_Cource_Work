@@ -55,10 +55,6 @@ public class SendDataThread extends Thread {
         mmInStream = tmpIn;
     }
 
-    public void setHandler(Handler handler){
-        this.mHandler = handler;
-    }
-
     public SendDataThread(@NonNull Context context){
         if (context instanceof Activity){
             c = context;
@@ -68,15 +64,56 @@ public class SendDataThread extends Thread {
 
     @Override
     public void run() {
+        while(flag){
+            byte[] buffer = new byte[1024];  // buffer store for the stream
+            int bytes; // bytes returned from read()
+            // Keep listening to the InputStream until an exception occurs
+            // Read from the InputStream
+            try {
+                StringBuilder incomingDataBuffer = new StringBuilder();
 
+                bytes = mmInStream.read(buffer);
 
-    }
+                String incomingMessage = new String(buffer, 0, bytes);
+                incomingMessage = incomingMessage.replaceAll("\r", "");
+                str.append(incomingMessage);
+                int j = 0;
+                boolean isComplete = false;
+                while(!isComplete){
+                    if(str.charAt(j)=='\n' && j+1<=str.length()-1) {
+                        incomingDataBuffer.append(str.substring(0, j+1));
+                        incomingData(incomingDataBuffer.toString());
 
-    void printData(){
-        if(flag){
+                        incomingDataBuffer.setLength(0);
+                        String bufferStr = str.substring(j + 1);
+                        str.setLength(0);
+                        str.append(bufferStr);
+                        j = -1;
 
+                    } else if(str.charAt(j)=='\n') {
+                        incomingDataBuffer.append(str);
+                        incomingData(incomingDataBuffer.toString());
+                        j = -1;
+                        str.setLength(0);
+                    }
+                    if(str.indexOf("\n") == -1){
+                        isComplete = true;
+                    }
+                    j++;
+                }
+
+            } catch (IOException e) {
+                Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
+                flag = false;
+            }
         }
     }
+
+    synchronized void incomingData(String incomingData){
+        Log.d(TAG, "InputStream: " + incomingData);
+        ((SendDataActivity) c).outputText.append(incomingData);
+    }
+
     public void sendData(byte[] message)
     {
         Log.d(TAG, "Отправка данных в потоке");

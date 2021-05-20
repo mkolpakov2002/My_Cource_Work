@@ -134,7 +134,7 @@ public class BluetoothConnectionService extends Service {
                 resultOfConnectionIntent = new Intent("success_code_1");
                 Log.d(TAG, "...Соединение успешно, передаю результат в MainActivity...");
                 DeviceHandler.setDeviceName(arguments.get("nameOfDevice").toString());
-                DeviceHandler.setDeviceClass(arguments.get("classOfDevice").toString());
+                DeviceHandler.setDeviceType(arguments.get("classOfDevice").toString());
                 DeviceHandler.setDeviceId(arguments.get("idOfDevice").toString());
             } else {
                 resultOfConnectionIntent = new Intent("success_code_2");
