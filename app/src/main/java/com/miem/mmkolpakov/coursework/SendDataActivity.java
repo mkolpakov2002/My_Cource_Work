@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     boolean isNeedToRestartConnection = false;
     OutputStream mmOutStream;
     InputStream mmInStream;
+    TextView seekBarTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
 
         outputText = findViewById(R.id.incoming_data);
         outputText.setMovementMethod(new ScrollingMovementMethod());
-        
+
         protocolRepo = new ProtocolRepo("main_protocol");
         dataThreadForArduino = new SendDataThread(this);
         clientSocket = DeviceHandler.getSocket();
@@ -91,6 +93,31 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         //тип устройства
         message[3] = ProtocolRepo.getDeviceCodeByte(DeviceHandler.getDeviceType());
 
+        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBarTextView = (TextView) findViewById(R.id.seekBarValue);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                setSeekBarProgress(String.valueOf(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        setSeekBarProgress("2");
+
+    }
+
+    void setSeekBarProgress(String progress){
+        seekBarTextView.setText(String.format(getResources().getString(R.string.seekBarProgress), progress));
     }
 
     //выполняемый код при изменении состояния bluetooth
@@ -170,11 +197,9 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     {
         super.onStop();
         Log.d(TAG, "Приложение свёрнуто");
-        outputText.append("\n"+ "---");
-        outputText.append("\n"+ "Приложение свёрнуто");
+        printDataToTextView("Приложение свёрнуто");
         Log.d(TAG, "Остановка движения");
-        outputText.append("\n"+ "---");
-        outputText.append("\n"+ "Остановка движения");
+        printDataToTextView("Остановка движения");
         makeMessage("STOP");
         isNeedToRestartConnection = true;
         try
@@ -192,8 +217,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     {
         refreshActivity();
         Log.d(TAG, "Остановка движения");
-        outputText.append("\n"+ "---");
-        outputText.append("\n"+ "Остановка движения");
+        printDataToTextView("Остановка движения");
         makeMessage("STOP");
     }
 
@@ -207,23 +231,19 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                 int id = v.getId();
                 if (id == R.id.button_up) {
                     Log.d(TAG, "Движение вперед");
-                    outputText.append("\n" + "---");
-                    outputText.append("\n" + "Движение вперед");
+                    printDataToTextView("Движение вперёд");
                     makeMessage("FORWARD");
                 } else if (id == R.id.button_down) {
                     Log.d(TAG, "Движение назад");
-                    outputText.append("\n" + "---");
-                    outputText.append("\n" + "Движение назад");
+                    printDataToTextView("Движение назад");
                     makeMessage("BACK");
                 } else if (id == R.id.button_left) {
                     Log.d(TAG, "Движение влево");
-                    outputText.append("\n" + "---");
-                    outputText.append("\n" + "Движение влево");
+                    printDataToTextView("Движение влево");
                     makeMessage("LEFT");
                 } else if (id == R.id.button_right) {
                     Log.d(TAG, "Движение вправо");
-                    outputText.append("\n" + "---");
-                    outputText.append("\n" + "Движение вправо");
+                    printDataToTextView("Движение вправо");
                     makeMessage("RIGHT");
                 }
             }
@@ -234,23 +254,19 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                     int id = v.getId();
                     if (id == R.id.button_up) {
                         Log.d(TAG, "Остановка движения вперёд");
-                        outputText.append("\n" + "---");
-                        outputText.append("\n" + "Остановка движения вперёд");
+                        printDataToTextView("Остановка движения вперёд");
                         makeMessage("FORWARD_STOP");
                     } else if (id == R.id.button_down) {
                         Log.d(TAG, "Остановка движения назад");
-                        outputText.append("\n" + "---");
-                        outputText.append("\n" + "Остановка движения назад");
+                        printDataToTextView( "Остановка движения назад");
                         makeMessage("BACK_STOP");
                     } else if (id == R.id.button_left) {
                         Log.d(TAG, "Остановка движения влево");
-                        outputText.append("\n" + "---");
-                        outputText.append("\n" + "Остановка движения влево");
+                        printDataToTextView("Остановка движения влево");
                         makeMessage("LEFT_STOP");
                     } else if (id == R.id.button_right) {
                         Log.d(TAG, "Остановка движения вправо");
-                        outputText.append("\n" + "---");
-                        outputText.append("\n" + "Остановка движения вправо");
+                        printDataToTextView("Остановка движения вправо");
                         makeMessage("RIGHT_STOP");
                     }
                 }
@@ -269,8 +285,13 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             message[4] = ProtocolRepo.getCommandTypeByte("new_command");
             prevCommand = message[6];
         }
-        outputText.append("\n"+ "Отправляем данные:" + "\n"+ Arrays.toString(message));
+        printDataToTextView("Отправляем данные:" + "\n"+ Arrays.toString(message));
         dataThreadForArduino.sendData(message);
+    }
+
+    public synchronized void printDataToTextView(String printData){
+        Log.d(TAG, "Output data: " + printData);
+        outputText.append("\n" + "---" + "\n" + printData);
     }
 
     @Override

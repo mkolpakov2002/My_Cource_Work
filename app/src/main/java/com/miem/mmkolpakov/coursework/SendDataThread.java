@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -111,7 +112,8 @@ public class SendDataThread extends Thread {
 
     synchronized void incomingData(String incomingData){
         Log.d(TAG, "InputStream: " + incomingData);
-        ((SendDataActivity) c).outputText.append(incomingData);
+        ((SendDataActivity) c).printDataToTextView(incomingData.replaceAll("\n",""));
+        SystemClock.sleep(100);
     }
 
     public void sendData(byte[] message)

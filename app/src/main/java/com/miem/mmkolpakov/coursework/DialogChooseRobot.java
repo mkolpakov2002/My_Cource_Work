@@ -59,7 +59,7 @@ public class DialogChooseRobot extends DialogFragment  {
         layout.setOrientation(LinearLayout.VERTICAL);
         //создаём список протоколов в виде листа
         listTypes = new ArrayList<>();
-        listTypes = Arrays.asList("type_sphere", "type_anthropomorphic", "type_cubbi", "type_computer", "no_type");
+        listTypes = Arrays.asList("type_sphere", "type_anthropomorphic", "type_cubbi", "type_computer");
         ArrayAdapter<String> adapterType = new ArrayAdapter<>(c, android.R.layout.simple_spinner_item, listTypes);
         adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //создание выпадающего списка протоколов
