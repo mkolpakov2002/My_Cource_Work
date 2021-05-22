@@ -52,6 +52,8 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     int timeForWaiting = 2;
     boolean isNeedSendStop = false;
     static boolean active = false;
+    //Переменная для хранения времени между нажатиями кнопки назад
+    private static long back_pressed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -470,5 +472,18 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         });
         // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
         dialog.show();
+    }
+
+    //метод, вызываемый при нажатии кнопки назад на главном экране
+    @Override
+    public void onBackPressed() {
+        //иначе даём возможность выйти из приложения, но по двойному нажатию кнопки назад
+        if (back_pressed + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+        } else {
+            //показ сообщения, о необходимости второго нажатия кнопки назад при выходе
+            showToast(getResources().getString(R.string.press_again));
+        }
+        back_pressed = System.currentTimeMillis();
     }
 }
