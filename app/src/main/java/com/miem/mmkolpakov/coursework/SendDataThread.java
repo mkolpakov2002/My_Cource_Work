@@ -112,7 +112,7 @@ public class SendDataThread extends Thread {
 
     synchronized void incomingData(String incomingData){
         Log.d(TAG, "InputStream: " + incomingData);
-        ((SendDataActivity) c).printDataToTextView(incomingData.replaceAll("\n",""));
+        ((SendDataActivity) c).printDataToTextView(incomingData.replaceAll("\n",""), 1);
         SystemClock.sleep(100);
     }
 
