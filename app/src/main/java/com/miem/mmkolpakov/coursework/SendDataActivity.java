@@ -148,7 +148,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     }
 
     void restartConnection() {
-        if(!getIsActivityNeedsStopping()){
+        if(!getIsActivityNeedsStopping("1")){
             // начало показа диалога о соединении
             progressOfConnectionDialog = new ProgressDialog(this);
             progressOfConnectionDialog.setMessage("Соединение...");
@@ -181,7 +181,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
-        } else if(isNeedToRestartConnection && !getIsActivityNeedsStopping()) {
+        } else if(isNeedToRestartConnection && !getIsActivityNeedsStopping("1")) {
             isNeedToRestartConnection = false;
             Log.d(TAG, "Bluetooth включён, перестартуем соединение");
             restartConnection();
@@ -448,7 +448,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
 
     //диалог о неуспешном соединении
     void connectionFailed(){
-        if (!getIsActivityNeedsStopping()){
+        if (!getIsActivityNeedsStopping("1")){
             // объект Builder для создания диалогового окна
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
             // добавляем различные компоненты в диалоговое окно
@@ -462,7 +462,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             });
             builder.setNegativeButton(getResources().getString(R.string.exit), (dialog, which) -> {
                 //завершение активити
-                setIsActivityNeedsStopping();
+                getIsActivityNeedsStopping("2");
                 finish();
             });
             // объект Builder создал диалоговое окно и оно готово появиться на экране
@@ -485,7 +485,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         //иначе даём возможность выйти из приложения, но по двойному нажатию кнопки назад
         if (back_pressed + 2000 > System.currentTimeMillis()) {
             dataThreadForArduino.Disconnect();
-            setIsActivityNeedsStopping();
+            getIsActivityNeedsStopping("2");
             finish();
         } else {
             //показ сообщения, о необходимости второго нажатия кнопки назад при выходе
@@ -494,11 +494,10 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         back_pressed = System.currentTimeMillis();
     }
 
-    synchronized void setIsActivityNeedsStopping(){
-        isDestroyingActivity = true;
-    }
-
-    synchronized boolean getIsActivityNeedsStopping(){
+    synchronized boolean getIsActivityNeedsStopping(String code){
+        if(code.equals("2")){
+            isDestroyingActivity = true;
+        }
         return isDestroyingActivity;
     }
 

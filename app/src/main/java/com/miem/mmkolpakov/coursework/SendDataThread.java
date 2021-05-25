@@ -48,7 +48,7 @@ public class SendDataThread extends Thread {
 
     @Override
     public void run() {
-        while(flag && !((SendDataActivity) c).getIsActivityNeedsStopping()){
+        while(flag && !((SendDataActivity) c).getIsActivityNeedsStopping("1")){
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes = 0; // bytes returned from read()
             // Keep listening to the InputStream until an exception occurs
@@ -109,7 +109,7 @@ public class SendDataThread extends Thread {
     }
 
     synchronized void incomingData(String incomingData){
-        if(!((SendDataActivity) c).getIsActivityNeedsStopping()){
+        if(!((SendDataActivity) c).getIsActivityNeedsStopping("1")){
             Log.d(TAG, "Входящие данные: " + incomingData);
             ((SendDataActivity) c).runOnUiThread(new Runnable() {
                 public void run() {
@@ -121,7 +121,7 @@ public class SendDataThread extends Thread {
     }
 
     public void sendData(byte[] message) {
-        if(!((SendDataActivity) c).getIsActivityNeedsStopping()){
+        if(!((SendDataActivity) c).getIsActivityNeedsStopping("1")){
             Log.d(TAG, "Отправка данных в потоке");
             StringBuilder logMessage = new StringBuilder("Отправляем данные: [ ");
             for (int i=0; i < 32; i++)
