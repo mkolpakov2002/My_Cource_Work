@@ -152,6 +152,4 @@ public class SendDataThread extends Thread {
             Log.e(TAG, "Ошибка при попытке отключения от устройства " + e2.getMessage());
         }
     }
-
-
 }
