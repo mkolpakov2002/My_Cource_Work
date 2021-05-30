@@ -177,7 +177,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     // Метод для вывода всплывающих данных на экран
     public void showToast(String outputInfoString) {
         if (!getIsActivityNeedsStopping("1") && active){
-            Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_LONG);
+            Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
             outputInfoToast.show();
         }
     }
