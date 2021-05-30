@@ -483,7 +483,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     };
 
     //диалог о неуспешном соединении
-    void connectionFailed(){
+    synchronized void connectionFailed(){
         if (!getIsActivityNeedsStopping("1") && !isRestartDialogShown){
             isRestartDialogShown = true;
             // объект Builder для создания диалогового окна
