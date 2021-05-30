@@ -211,15 +211,15 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
 
         if (code.equals("2") && isNeedToRestartConnection){
             isNeedToRestartConnection = false;
-            return !isNeedToRestartConnection;
-        } else if (code.equals("2") && !isNeedToRestartConnection){
-            return isNeedToRestartConnection;
+            return true;
+        } else if (code.equals("2")){
+            return false;
         } else if (code.equals("3")){
             isNeedToRestartConnection = false;
-            return !isNeedToRestartConnection;
+            return true;
         } else {
             isNeedToRestartConnection = true;
-            return isNeedToRestartConnection;
+            return true;
         }
     }
 
@@ -458,11 +458,6 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             showToast(getResources().getString(R.string.connection_not_successful));
             //connectionFailed
             Log.d(TAG, "...Соединение неуспешно, результат в SendDataActivity...");
-            //скрытие окна о соединении
-            if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
-                progressOfConnectionDialog.dismiss();
-                progressOfConnectionDialog = null;
-            }
             if(isNeedToRestartConnection("3") && !getIsActivityNeedsStopping("1")) {
                 //вызов окна о неуспешном соединении
                 connectionFailed();
@@ -527,6 +522,11 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             dialog.setOnShowListener(arg0 -> {
                 dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColor( R.color.color_red));
             });
+            //скрытие окна о соединении
+            if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
+                progressOfConnectionDialog.dismiss();
+                progressOfConnectionDialog = null;
+            }
             // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
             dialog.show();
         }
