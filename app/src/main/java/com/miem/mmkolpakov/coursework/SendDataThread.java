@@ -97,10 +97,11 @@ public class SendDataThread extends Thread {
                     }
                     j++;
                 }
-            } else if(SendDataActivity.active && !((SendDataActivity) c).isNeedToRestartConnection){
+            } else if(SendDataActivity.active && ((SendDataActivity) c).isNeedToRestartConnection("2")){
                 //чтение входящей информации неуспешно при открытом приложении
                 ((SendDataActivity) c).runOnUiThread(new Runnable() {
                     public void run() {
+
                         ((SendDataActivity) c).connectionFailed();
                     }
                 });
@@ -123,7 +124,7 @@ public class SendDataThread extends Thread {
     public void sendData(byte[] message) {
         if(!((SendDataActivity) c).getIsActivityNeedsStopping("1")){
             Log.d(TAG, "Отправка данных в потоке");
-            StringBuilder logMessage = new StringBuilder("Отправляем данные: [ ");
+            StringBuilder logMessage = new StringBuilder(((SendDataActivity) c).getResources().getString(R.string.sending_data_bytes));
             for (int i=0; i < 32; i++)
                 logMessage.append(message[i]).append(" ");
             Log.d(TAG, logMessage + "]");
@@ -133,13 +134,15 @@ public class SendDataThread extends Thread {
             } catch (IOException e) {
                 Log.e(TAG, "Ошибка отправки данных в потоке " + e.getMessage());
                 flag = false;
-                //отправка сообщения об ошибке
-                ((SendDataActivity) c).runOnUiThread(new Runnable() {
-                    public void run() {
-                        ((SendDataActivity) c).printDataToTextView("Отправка сообщения неуспешна");
-                        ((SendDataActivity) c).connectionFailed();
-                    }
-                });
+                if(((SendDataActivity) c).isNeedToRestartConnection("2")){
+                    //отправка сообщения об ошибке
+                    ((SendDataActivity) c).runOnUiThread(new Runnable() {
+                        public void run() {
+                            ((SendDataActivity) c).printDataToTextView(((SendDataActivity) c).getResources().getString(R.string.sending_data_failed));
+                            ((SendDataActivity) c).connectionFailed();
+                        }
+                    });
+                }
             }
         }
     }

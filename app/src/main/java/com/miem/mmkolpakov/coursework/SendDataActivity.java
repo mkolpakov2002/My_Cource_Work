@@ -61,6 +61,9 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     private static long back_pressed = 0;
     //отслеживание момента прекращения работы Activity
     boolean isDestroyingActivity = false;
+    AlertDialog dialog = null;
+    boolean isRestartDialogShown = false;
+    boolean isAlreadyWaitingForBtEn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +140,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     private final BroadcastReceiver BluetoothStateChanged = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            isNeedSendStop = false;
             refreshActivity();
         }
     };
@@ -144,14 +148,18 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     @Override protected void onRestart() {
         super.onRestart();
         active = true;
+        isAlreadyWaitingForBtEn = false;
         refreshActivity();
     }
 
-    void restartConnection() {
+    synchronized void restartConnection() {
         if(!getIsActivityNeedsStopping("1")){
+            if (dialog != null && isRestartDialogShown) {
+                dialog.hide();
+            }
             // начало показа диалога о соединении
             progressOfConnectionDialog = new ProgressDialog(this);
-            progressOfConnectionDialog.setMessage("Соединение...");
+            progressOfConnectionDialog.setMessage(getResources().getString(R.string.connection_title));
             progressOfConnectionDialog.setCancelable(false);
             progressOfConnectionDialog.setInverseBackgroundForced(false);
             progressOfConnectionDialog.show();
@@ -176,15 +184,39 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG, "Обновление состояния Activity");
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             Log.d(TAG, "Bluetooth выключен, предложим включить");
-            isNeedToRestartConnection = true;
-            //открытие системного диалога с предложением включить Bluetooth
-            Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            int REQUEST_ENABLE_BT = 1;
-            startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
-        } else if(isNeedToRestartConnection && !getIsActivityNeedsStopping("1")) {
-            isNeedToRestartConnection = false;
+            isNeedToRestartConnection("1");
+            if(!isAlreadyWaitingForBtEn){
+                isAlreadyWaitingForBtEn = true;
+                //открытие системного диалога с предложением включить Bluetooth
+                Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                int REQUEST_ENABLE_BT = 1;
+                startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
+            }
+        } else if(isNeedToRestartConnection("2") && !getIsActivityNeedsStopping("1")) {
             Log.d(TAG, "Bluetooth включён, перестартуем соединение");
-            restartConnection();
+            connectionFailed();
+        }
+    }
+
+    //для кода 2 возвращает true только для первого вызова переподключения
+    //затем возвращает всё время false, т.к. окно переподключения уже вызвано
+    //код 3 только для повторной попытки перподключения, если первая такая попытка неуспешна
+    //код 1 установит необходимость переподключиться
+    //synchronized нужен, т.к. к переменной надо обращаться последовательно, иначе БАГИ
+    //на самом деле не работает как задумывалось, помогла добавка isRestartDialogShown
+    public synchronized boolean isNeedToRestartConnection(String code) {
+
+        if (code.equals("2") && isNeedToRestartConnection){
+            isNeedToRestartConnection = false;
+            return !isNeedToRestartConnection;
+        } else if (code.equals("2") && !isNeedToRestartConnection){
+            return isNeedToRestartConnection;
+        } else if (code.equals("3")){
+            isNeedToRestartConnection = false;
+            return !isNeedToRestartConnection;
+        } else {
+            isNeedToRestartConnection = true;
+            return isNeedToRestartConnection;
         }
     }
 
@@ -203,17 +235,17 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     }
 
     void sendStopAndDisconnect() {
-        if(!active){
-            printDataToTextView("Приложение свёрнуто, согласно времени задержки посылаю команду стоп и отключаю устройство");
-            Log.d(TAG, "Остановка движения");
-            printDataToTextView("Остановка движения");
+        if(!active && BluetoothAdapter.getDefaultAdapter().isEnabled() && isNeedSendStop){
+            printDataToTextView(getResources().getString(R.string.app_not_visible_with_stop));
+            Log.d(TAG, getResources().getString(R.string.motion_stop));
+            printDataToTextView(getResources().getString(R.string.motion_stop));
             isNeedSendStop = false;
             makeAndSendMessage("STOP");
             try
             {
-                printDataToTextView("Отключение от устройства...");
+                printDataToTextView(getResources().getString(R.string.disconnecting_from_the_device));
                 dataThreadForArduino.Disconnect();                 // отсоединяемся от bluetooth
-                isNeedToRestartConnection = true;
+                isNeedToRestartConnection("1");
             }
             catch (Exception e)
             {
@@ -241,8 +273,8 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     sendStopAndDisconnect();
                 }
-            } else if(isNeedSendStop && !isDestroyingActivity){
-                printDataToTextView("Приложение свёрнуто, согласно времени задержки посылаю команду стоп");
+            } else if(isNeedSendStop && !isDestroyingActivity && BluetoothAdapter.getDefaultAdapter().isEnabled()){
+                printDataToTextView(getResources().getString(R.string.app_not_visible_with_stop));
                 Log.d(TAG, "Приложение свёрнуто");
             } else {
             Log.d(TAG, "Завершение работы Activity");
@@ -252,10 +284,9 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         //кнопка стоп, доступная только в режиме удержания команды
-        refreshActivity();
         if(lastClickTime + (long) timeForWaiting *1000 <= System.currentTimeMillis() && !isNeedSendStop){
-            Log.d(TAG, "Остановка движения");
-            printDataToTextView("Остановка движения");
+            Log.d(TAG, getResources().getString(R.string.motion_stop));
+            printDataToTextView(getResources().getString(R.string.motion_stop));
             makeAndSendMessage("STOP");
         } else if(lastClickTime + (long) timeForWaiting *1000 > System.currentTimeMillis() && !isNeedSendStop){
             buttonPressedTooFast();
@@ -264,30 +295,32 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         }
     }
     void buttonPressedTooFast(){
-        printDataToTextView("Подождите до окончания блокировки управления - " +
+        printDataToTextView(getResources().getString(R.string.wait_control) +
                 (lastClickTime + (long) timeForWaiting * 1000 - System.currentTimeMillis()) / 1000
-                + "с.");
+                + getResources().getString(R.string.second));
     }
     void printWaitForStopCommand(){
-        printDataToTextView("Подождите пока отправится команда стоп, до её отправки осталось " +
+        printDataToTextView(getResources().getString(R.string.wait_stop) +
                 (lastClickTime + (long) timeForWaiting * 1000 - System.currentTimeMillis()) / 1000
-                + "с.");
+                + getResources().getString(R.string.second));
     };
     void buttonPressedTooFastWithoutHoldCommand(String command, String message, View v){
-        printWaitForStopCommand();
-        isNeedSendStop = true;
-        v.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, message);
-                printDataToTextView(message);
-                isNeedSendStop = false;
-                makeAndSendMessage(command);
-                if(!active){
-                    sendStopAndDisconnect();
+        if(BluetoothAdapter.getDefaultAdapter().isEnabled()){
+            printWaitForStopCommand();
+            isNeedSendStop = true;
+            v.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, message);
+                    printDataToTextView(message);
+                    isNeedSendStop = false;
+                    makeAndSendMessage(command);
+                    if(!active){
+                        sendStopAndDisconnect();
+                    }
                 }
-            }
-        }, lastClickTime + (long) timeForWaiting * 1000 - System.currentTimeMillis());
+            }, lastClickTime + (long) timeForWaiting * 1000 - System.currentTimeMillis());
+        }
     }
     boolean isCommandAccepted = true;
     View.OnTouchListener touchListener = new View.OnTouchListener() {
@@ -297,20 +330,20 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                 isCommandAccepted = true;
                 int id = v.getId();
                 if (id == R.id.button_up && lastClickTime + (long) timeForWaiting *1000 <= System.currentTimeMillis()&&(!isNeedSendStop)) {
-                    Log.d(TAG, "Движение вперед");
-                    printDataToTextView("Движение вперёд");
+                    Log.d(TAG, getResources().getString(R.string.button_forward));
+                    printDataToTextView(getResources().getString(R.string.button_forward));
                     makeAndSendMessage("FORWARD");
                 } else if (id == R.id.button_down && lastClickTime + (long) timeForWaiting *1000 <= System.currentTimeMillis()&&(!isNeedSendStop)) {
-                    Log.d(TAG, "Движение назад");
-                    printDataToTextView("Движение назад");
+                    Log.d(TAG, getResources().getString(R.string.button_backward));
+                    printDataToTextView(getResources().getString(R.string.button_backward));
                     makeAndSendMessage("BACK");
                 } else if (id == R.id.button_left  && lastClickTime + (long) timeForWaiting *1000 <= System.currentTimeMillis()&&(!isNeedSendStop)) {
-                    Log.d(TAG, "Движение влево");
-                    printDataToTextView("Движение влево");
+                    Log.d(TAG, getResources().getString(R.string.button_leftward));
+                    printDataToTextView(getResources().getString(R.string.button_leftward));
                     makeAndSendMessage("LEFT");
                 } else if (id == R.id.button_right  && lastClickTime + (long) timeForWaiting *1000 <= System.currentTimeMillis()&&(!isNeedSendStop)) {
-                    Log.d(TAG, "Движение вправо");
-                    printDataToTextView("Движение вправо");
+                    Log.d(TAG, getResources().getString(R.string.button_rightward));
+                    printDataToTextView(getResources().getString(R.string.button_rightward));
                     makeAndSendMessage("RIGHT");
                 } else if (lastClickTime + (long) timeForWaiting *1000 > System.currentTimeMillis() &&(!isNeedSendStop)){
                     buttonPressedTooFast();
@@ -325,35 +358,35 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                 int id = v.getId();
                 if (id == R.id.button_up) {
                     if(lastClickTime + (long) timeForWaiting * 1000 <= System.currentTimeMillis()){
-                        Log.d(TAG, "Остановка движения вперёд");
-                        printDataToTextView("Остановка движения вперёд");
+                        Log.d(TAG, getResources().getString(R.string.stop_forward));
+                        printDataToTextView(getResources().getString(R.string.stop_forward));
                         makeAndSendMessage("FORWARD_STOP");
                     } else {
-                        buttonPressedTooFastWithoutHoldCommand("FORWARD_STOP", "Остановка движения вперёд", v);
+                        buttonPressedTooFastWithoutHoldCommand("FORWARD_STOP", getResources().getString(R.string.stop_forward), v);
                     }
                 } else if (id == R.id.button_down) {
                     if(lastClickTime + (long) timeForWaiting * 1000 <= System.currentTimeMillis()){
-                        Log.d(TAG, "Остановка движения назад");
-                        printDataToTextView( "Остановка движения назад");
+                        Log.d(TAG, getResources().getString(R.string.stop_backward));
+                        printDataToTextView(getResources().getString(R.string.stop_backward));
                         makeAndSendMessage("BACK_STOP");
                     } else {
-                        buttonPressedTooFastWithoutHoldCommand("BACK_STOP", "Остановка движения назад", v);
+                        buttonPressedTooFastWithoutHoldCommand("BACK_STOP", getResources().getString(R.string.stop_backward), v);
                     }
                 } else if (id == R.id.button_left) {
                     if(lastClickTime + (long) timeForWaiting * 1000 <= System.currentTimeMillis()){
-                        Log.d(TAG, "Остановка движения влево");
-                        printDataToTextView("Остановка движения влево");
+                        Log.d(TAG, getResources().getString(R.string.stop_leftward));
+                        printDataToTextView(getResources().getString(R.string.stop_leftward));
                         makeAndSendMessage("LEFT_STOP");
                     } else {
-                        buttonPressedTooFastWithoutHoldCommand("LEFT_STOP", "Остановка движения влево", v);
+                        buttonPressedTooFastWithoutHoldCommand("LEFT_STOP", getResources().getString(R.string.stop_leftward), v);
                     }
                 } else if (id == R.id.button_right) {
                     if(lastClickTime + (long) timeForWaiting * 1000 <= System.currentTimeMillis()){
-                        Log.d(TAG, "Остановка движения вправо");
-                        printDataToTextView("Остановка движения вправо");
+                        Log.d(TAG, getResources().getString(R.string.stop_rightward));
+                        printDataToTextView(getResources().getString(R.string.stop_rightward));
                         makeAndSendMessage("RIGHT_STOP");
                     } else {
-                        buttonPressedTooFastWithoutHoldCommand("RIGHT_STOP", "Остановка движения вправо", v);
+                        buttonPressedTooFastWithoutHoldCommand("RIGHT_STOP", getResources().getString(R.string.stop_rightward), v);
                     }
                 } else if (lastClickTime + (long) timeForWaiting *1000 > System.currentTimeMillis()){
                     buttonPressedTooFast();
@@ -365,8 +398,7 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
 
 
     void makeAndSendMessage(String code){
-        refreshActivity();
-        if(!isNeedSendStop){
+        if(!isNeedSendStop && BluetoothAdapter.getDefaultAdapter().isEnabled()){
             lastClickTime = System.currentTimeMillis();
             message[5] = ProtocolRepo.getCommandTypeByte("type_move");
             message[6] =  ProtocolRepo.getMoveCommandByte(code);
@@ -381,13 +413,13 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
                 bytesArray.append(String.format("%X", message[i]));
                 bytesArray.append(" ");
             }
-            printDataToTextView("Отправляем данные:" + "\n"+ "[ " + bytesArray + "]");
+            printDataToTextView(getResources().getString(R.string.sending_data) + "\n"+ "[ " + bytesArray + "]");
             dataThreadForArduino.sendData(message);
         }
     }
 
     public synchronized void printDataToTextView(String printData){
-        Log.d(TAG, "Печатаемая информация: " + printData);
+        Log.d(TAG, getResources().getString(R.string.printed_information) + printData);
         outputText.append("\n" + "---" + "\n" + printData);
     }
 
@@ -397,12 +429,12 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
         if (buttonView.getId() == R.id.switch_hold_command_mm) {
             is_hold_command = isChecked;
             if (is_hold_command) {
-                Log.d(TAG, "Удерживание комманды включено");
-                Toast.makeText(this, "Удерживание комманды включено", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, getResources().getString(R.string.hold_command_on));
+                Toast.makeText(this, getResources().getString(R.string.hold_command_on), Toast.LENGTH_SHORT).show();
                 findViewById(R.id.button_stop).setEnabled(true);
             } else {
-                Log.d(TAG, "Удерживание комманды отключено");
-                Toast.makeText(this, "Удерживание комманды отключено", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, getResources().getString(R.string.hold_command_off));
+                Toast.makeText(this, getResources().getString(R.string.hold_command_off), Toast.LENGTH_SHORT).show();
                 findViewById(R.id.button_stop).setEnabled(false);
             }
         }
@@ -412,15 +444,17 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            showToast("Соединение не успешно");
+            showToast(getResources().getString(R.string.connection_not_successful));
+            //connectionFailed
             Log.d(TAG, "...Соединение неуспешно, результат в SendDataActivity...");
             //скрытие окна о соединении
             if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
                 progressOfConnectionDialog.hide();
             }
-            isNeedToRestartConnection = true;
-            //вызов окна о неуспешном соединении
-            connectionFailed();
+            if(isNeedToRestartConnection("3") && !getIsActivityNeedsStopping("1")) {
+                //вызов окна о неуспешном соединении
+                connectionFailed();
+            }
         }
     };
 
@@ -428,7 +462,6 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            isNeedToRestartConnection = false;
             Log.d(TAG, "...Соединение успешно, результат в SendDataActivity...");
             Log.d(TAG, "...Создание нового потока...");
             //передача данных в поток
@@ -437,37 +470,43 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             dataThreadForArduino.start();
             Log.d(TAG, "...Поток пущен...");
             //Устройство подключено, Service выполнился успешно
-            showToast("Соединение успешно");
+            showToast(getResources().getString(R.string.сonnection_successful));
             //скрытие окна о соединении
             if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
                 progressOfConnectionDialog.hide();
             }
-            printDataToTextView("Переподключение успешно");
+            if (dialog != null && !isRestartDialogShown) {
+                dialog.hide();
+            }
+            printDataToTextView(getResources().getString(R.string.reconnection_successful));
         }
     };
 
     //диалог о неуспешном соединении
     void connectionFailed(){
-        if (!getIsActivityNeedsStopping("1")){
+        if (!getIsActivityNeedsStopping("1") && !isRestartDialogShown){
+            isRestartDialogShown = true;
             // объект Builder для создания диалогового окна
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
             // добавляем различные компоненты в диалоговое окно
-            builder.setTitle("Ошибка");
-            builder.setMessage("Соединение неуспешно. Попробовать снова?");
+            builder.setTitle(getResources().getString(R.string.error_title));
+            builder.setMessage(getResources().getString(R.string.question_try_to_reconnect));
             builder.setCancelable(false);
             // устанавливаем кнопку, которая отвечает за позитивный ответ
             builder.setPositiveButton(getResources().getString(R.string.ok), (dialog, which) -> {
                 //переподключение к устройству
                 restartConnection();
+                isRestartDialogShown = false;
             });
             builder.setNegativeButton(getResources().getString(R.string.exit), (dialog, which) -> {
+                isRestartDialogShown = false;
                 //завершение активити
                 getIsActivityNeedsStopping("2");
                 finish();
             });
             // объект Builder создал диалоговое окно и оно готово появиться на экране
             // Создание alert dialog и изменение цвета его кнопок
-            AlertDialog dialog = builder.create();
+            dialog = builder.create();
             dialog.setOnShowListener(arg0 -> {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.colorAccent));
             });

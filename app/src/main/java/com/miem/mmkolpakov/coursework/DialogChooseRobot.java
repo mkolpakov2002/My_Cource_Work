@@ -86,13 +86,13 @@ public class DialogChooseRobot extends DialogFragment  {
             ((ViewGroup)spinnerType.getParent()).removeView(spinnerType); // <- фикс ошибки
         }
         layout.addView(spinnerType);
-        return builder.setTitle(("Настройка подключения"))
-                .setMessage("Выберите тип подключаемого устройства:")
+        return builder.setTitle((getResources().getString(R.string.connection_settings)))
+                .setMessage(getResources().getString(R.string.selecting_type))
                 .setView(layout)
-                .setPositiveButton("ок", (dialog, whichButton) -> {
+                .setPositiveButton(getResources().getString(R.string.ok), (dialog, whichButton) -> {
                     // начало показа диалога о соединении
                     ((MainActivity) c).progressOfConnectionDialog = new ProgressDialog(c);
-                    ((MainActivity) c).progressOfConnectionDialog.setMessage("Соединение...");
+                    ((MainActivity) c).progressOfConnectionDialog.setMessage(getResources().getString(R.string.connection_title));
                     ((MainActivity) c).progressOfConnectionDialog.setCancelable(false);
                     ((MainActivity) c).progressOfConnectionDialog.setInverseBackgroundForced(false);
                     ((MainActivity) c).progressOfConnectionDialog.show();
@@ -107,7 +107,7 @@ public class DialogChooseRobot extends DialogFragment  {
                     ((MainActivity) c).startService(startBluetoothConnectionService);
                 })
                 //если диалог закрыли - обновить MainActivity
-                .setNegativeButton("Отмена", (dialog, whichButton) -> ((MainActivity) c).onRefresh()
+                .setNegativeButton(getResources().getString(R.string.cancel), (dialog, whichButton) -> ((MainActivity) c).onRefresh()
                 )
                 .setOnDismissListener(dialogInterface -> {
                     //если диалог свернули - обновить MainActivity

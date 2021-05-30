@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
     private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            showToast("Соединение не успешно");
+            showToast(getResources().getString(R.string.connection_not_successful));
             progressOfConnectionDialog.hide();
         }
     };
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
         @Override
         public void onReceive(Context context, Intent intent) {
             //Устройство подключено, Service выполнился успешно
-            showToast("Соединение успешно");
+            showToast(getResources().getString(R.string.сonnection_successful));
             Intent startSendingData = new Intent(MainActivity.this, SendDataActivity.class);
             startSendingData.putExtra("idOfDevice", selectedDeviceId);
             startSendingData.putExtra("nameOfDevice", selectedDeviceName);
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements DevicesAdapter.Se
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog).create();
             dialog.setTitle(getString(R.string.error));
             dialog.setMessage(getString(R.string.suggestionNoBtAdapter));
-            dialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+            dialog.setButton(AlertDialog.BUTTON_POSITIVE, getResources().getString(R.string.ok),
                     (dialog1, which) -> {
                         // скрывает диалог и завершает работу приложения
                         dialog1.dismiss();
