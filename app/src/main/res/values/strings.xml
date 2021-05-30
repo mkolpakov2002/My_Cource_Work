@@ -28,7 +28,7 @@
     <string name="deviceIsSelected">Connection is already started, please wait</string>
     <string name="no_paired_devices">No bounded devices, add them in settings by clicking the button below</string>
     <string name="instruction_alert">Tip</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="instruction_for_app">Use this app to connect to your robotic devices. If the list of available devices is empty, go to the settings by clicking the assigned button, make new connection. Only one device is available for connection, to start connection tap on your device. Data transfer is carried out using the protocol available at the link: \nhttps://drive.google.com/file/d/15m_IHMHJuL50GD7ED1wr0oiJYxRY-aMS/view?usp=sharing.  \nThe application was created as part of the course work of Maxim Kolpakov in 2021.</string>
     <string name="instructions_title">Help</string>
     <string name="clear">Clear</string>
@@ -41,7 +41,7 @@
     <string name="exit">exit</string>
     <string name="seekBarProgress">Delay in sending commands - %1$s sec.</string>
     <string name="connection_not_successful">Connection failed!</string>
-    <string name="search_title">Searchin devices by name</string>
+    <string name="search_title">Search in devices by name</string>
     <string name="cancel">Cancel</string>
     <string name="connection_settings">Connection settings</string>
     <string name="selecting_type">Select the device type</string>
