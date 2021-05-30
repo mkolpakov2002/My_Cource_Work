@@ -153,9 +153,10 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     }
 
     synchronized void restartConnection() {
-        if(!getIsActivityNeedsStopping("1")){
+        if(!getIsActivityNeedsStopping("1") && active){
             if (dialog != null && isRestartDialogShown) {
-                dialog.hide();
+                dialog.dismiss();
+                dialog = null;
             }
             // начало показа диалога о соединении
             progressOfConnectionDialog = new ProgressDialog(this);
@@ -175,8 +176,10 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
 
     // Метод для вывода всплывающих данных на экран
     public void showToast(String outputInfoString) {
-        Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_LONG);
-        outputInfoToast.show();
+        if (!getIsActivityNeedsStopping("1") && active){
+            Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_LONG);
+            outputInfoToast.show();
+        }
     }
 
     //Обновляем внешний вид приложения, если Bluetooth выключен завершаем Activity и Сервис
@@ -231,6 +234,14 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
         active = false;
+        if(dialog!=null){
+            dialog.dismiss();
+            dialog = null;
+        }
+        if(progressOfConnectionDialog!=null){
+            progressOfConnectionDialog.dismiss();
+            progressOfConnectionDialog = null;
+        }
         Log.d(TAG, "Завершение работы Activity");
     }
 
@@ -449,7 +460,8 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             Log.d(TAG, "...Соединение неуспешно, результат в SendDataActivity...");
             //скрытие окна о соединении
             if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
-                progressOfConnectionDialog.hide();
+                progressOfConnectionDialog.dismiss();
+                progressOfConnectionDialog = null;
             }
             if(isNeedToRestartConnection("3") && !getIsActivityNeedsStopping("1")) {
                 //вызов окна о неуспешном соединении
@@ -473,10 +485,12 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
             showToast(getResources().getString(R.string.сonnection_successful));
             //скрытие окна о соединении
             if (progressOfConnectionDialog != null && progressOfConnectionDialog.isShowing()) {
-                progressOfConnectionDialog.hide();
+                progressOfConnectionDialog.dismiss();
+                progressOfConnectionDialog = null;
             }
             if (dialog != null && !isRestartDialogShown) {
-                dialog.hide();
+                dialog.dismiss();
+                dialog = null;
             }
             printDataToTextView(getResources().getString(R.string.reconnection_successful));
         }
@@ -523,8 +537,9 @@ public class SendDataActivity extends AppCompatActivity implements View.OnClickL
     public void onBackPressed() {
         //иначе даём возможность выйти из приложения, но по двойному нажатию кнопки назад
         if (back_pressed + 2000 > System.currentTimeMillis()) {
-            dataThreadForArduino.Disconnect();
             getIsActivityNeedsStopping("2");
+            active = false;
+            dataThreadForArduino.Disconnect();
             finish();
         } else {
             //показ сообщения, о необходимости второго нажатия кнопки назад при выходе

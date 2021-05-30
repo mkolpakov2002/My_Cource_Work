@@ -97,7 +97,8 @@ public class SendDataThread extends Thread {
                     }
                     j++;
                 }
-            } else if(SendDataActivity.active && ((SendDataActivity) c).isNeedToRestartConnection("2")){
+            } else if(SendDataActivity.active && ((SendDataActivity) c).isNeedToRestartConnection("2")
+                    && !((SendDataActivity) c).getIsActivityNeedsStopping("1")){
                 //чтение входящей информации неуспешно при открытом приложении
                 ((SendDataActivity) c).runOnUiThread(new Runnable() {
                     public void run() {
@@ -149,6 +150,7 @@ public class SendDataThread extends Thread {
 
     public void Disconnect() {
         Log.d(TAG, "Пытаюсь отключиться от устройства в потоке");
+        flag = false;
         try {
             clientSocket.close();
         } catch (IOException e2) {
